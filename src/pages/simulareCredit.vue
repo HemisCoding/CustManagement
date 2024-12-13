@@ -1,8 +1,8 @@
 <template>
   <v-container class="pa-5 container" fluid>
-    <v-card class="align-center pa-3 card-style1">
+    <!-- <v-card class="align-center pa-3 card-style1">
       <v-row>
-        <!-- Coloana pentru titlu și text - prima simulare -->
+
         <v-col cols="12" md="4">
           <v-card-title>Simulare Plată Credit</v-card-title>
           <v-card-text>
@@ -34,12 +34,61 @@
           </v-card-text>
         </v-col>
 
-        <!-- Coloana pentru graficul principal -->
         <v-col cols="12" md="8" class="d-flex align-center justify-center">
           <canvas id="creditChart" style="max-width: 100%; height: 400px;"></canvas>
         </v-col>
       </v-row>
-    </v-card>
+    </v-card> -->
+
+       <v-btn @click="addCard" color="success" class="mb-3">
+      <v-icon left>mdi-plus</v-icon> Adaugă Simulare
+    </v-btn>
+    <div v-for="(card, index) in cards" :key="index" class="mb-5">
+      <v-card class="align-center pa-3 card-style1">
+        <v-row>
+          <v-col cols="12" md="4">
+            <v-card-title>
+              Simulare Plată Credit {{ index + 1 }}
+              <v-btn icon @click="removeCard(index)" color="red" class="ml-2">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </v-card-title>
+            <v-card-text>
+              <v-form>
+                <v-text-field
+                  label="Perioada creditului (luni)"
+                  v-model="card.creditPeriod"
+                  type="number"
+                  min="1"
+                  required
+                ></v-text-field>
+                <v-text-field
+                  label="Suma totală (RON)"
+                  v-model="card.totalAmount"
+                  type="number"
+                  min="1"
+                  required
+                ></v-text-field>
+                <v-text-field
+                  label="Dobândă anuală (%)"
+                  v-model="card.interestRate"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  required
+                ></v-text-field>
+                <v-btn @click="calculateGraph(card)" color="primary">
+                  Calculează și afișează graficul
+                </v-btn>
+              </v-form>
+            </v-card-text>
+          </v-col>
+          <v-col cols="12" md="8" class="d-flex align-center justify-center">
+            <canvas :id="'creditChart-' + index" style="max-width: 100%; height: 400px;"></canvas>
+          </v-col>
+        </v-row>
+      </v-card>
+    </div>
 
     <!-- Calculatorul de rata anticipată -->
     <v-card class="align-center pa-3 card-style1 mt-4">
@@ -103,11 +152,15 @@ export default {
   name: "CreditSimulator",
   data() {
     return {
+      cards: [
+        {
       // Variabile pentru graficul principal
       creditPeriod: 360,
       totalAmount: 288660,
       interestRate: 4.9,
       creditChart: null,
+        }
+      ],
 
       // Variabile pentru graficul de rambursare anticipată
       prepaymentTotalAmount: 288660,
@@ -121,6 +174,17 @@ export default {
     };
   },
   methods: {
+    addCard() {
+    this.cards.push({
+      creditPeriod: 360,
+      totalAmount: 288660,
+      interestRate: 4.9,
+      creditChart: null,
+    });
+  },
+  removeCard(index) {
+    this.cards.splice(index, 1);
+  },
     destroyChart(chart) {
       if (chart) {
         chart.destroy();
@@ -176,60 +240,63 @@ export default {
     },
 
     // Calcul grafic principal
-    calculateGraph() {
-      const monthlyInterestRate = this.interestRate / 100 / 12;
-      const numPayments = this.creditPeriod;
-      const principal = this.totalAmount;
+    calculateGraph(card) {
+  const monthlyInterestRate = card.interestRate / 100 / 12;
+  const numPayments = card.creditPeriod;
+  const principal = card.totalAmount;
 
-      const monthlyPayment =
-        (principal * monthlyInterestRate) /
-        (1 - Math.pow(1 + monthlyInterestRate, -numPayments));
+  const monthlyPayment =
+    (principal * monthlyInterestRate) /
+    (1 - Math.pow(1 + monthlyInterestRate, -numPayments));
 
-      const interestData = [];
-      const principalData = [];
-      const totalData = [];
-      let remainingPrincipal = principal;
+  const interestData = [];
+  const principalData = [];
+  const totalData = [];
+  let remainingPrincipal = principal;
 
-      for (let i = 1; i <= numPayments; i++) {
-        const interest = remainingPrincipal * monthlyInterestRate;
-        const principalPayment = monthlyPayment - interest;
+  for (let i = 1; i <= numPayments; i++) {
+    const interest = remainingPrincipal * monthlyInterestRate;
+    const principalPayment = monthlyPayment - interest;
 
-        interestData.push(interest);
-        principalData.push(principalPayment);
-        totalData.push(interest + principalPayment);
+    interestData.push(interest);
+    principalData.push(principalPayment);
+    totalData.push(interest + principalPayment);
 
-        remainingPrincipal -= principalPayment;
-      }
+    remainingPrincipal -= principalPayment;
+  }
 
-      // Resetează graficul anterior
-      this.destroyChart(this.creditChart);
+  // Resetează graficul anterior
+  this.destroyChart(card.creditChart);
 
-      const ctx = document.getElementById("creditChart").getContext("2d");
-      this.creditChart = this.createGraph(
-        ctx,
-        Array.from({ length: numPayments }, (_, i) => i + 1),
-        [
-          {
-            label: "Dobândă către bancă",
-            data: interestData,
-            borderColor: "rgba(255, 99, 132, 1)",
-            borderWidth: 1,
-          },
-          {
-            label: "Principal către bancă",
-            data: principalData,
-            borderColor: "rgba(54, 162, 235, 1)",
-            borderWidth: 1,
-          },
-          {
-            label: "Total plată lunară",
-            data: totalData,
-            borderColor: "rgba(75, 192, 192, 1)",
-            borderWidth: 1,
-          },
-        ]
-      );
-    },
+  const ctx = document
+    .getElementById(`creditChart-${this.cards.indexOf(card)}`)
+    .getContext("2d");
+  card.creditChart = this.createGraph(
+    ctx,
+    Array.from({ length: numPayments }, (_, i) => i + 1),
+    [
+      {
+        label: "Dobândă către bancă",
+        data: interestData,
+        borderColor: "rgba(255, 99, 132, 1)",
+        borderWidth: 1,
+      },
+      {
+        label: "Principal către bancă",
+        data: principalData,
+        borderColor: "rgba(54, 162, 235, 1)",
+        borderWidth: 1,
+      },
+      {
+        label: "Total plată lunară",
+        data: totalData,
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 1,
+      },
+    ]
+  );
+},
+
 
     // Calcul rambursare anticipată
     calculatePREPAYMENT() {
