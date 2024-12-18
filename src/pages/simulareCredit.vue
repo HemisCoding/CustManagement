@@ -1,60 +1,37 @@
 <template>
   <v-container class="pa-5 container" fluid>
-    <!-- <v-card class="align-center pa-3 card-style1">
-      <v-row>
+    <v-row>
+      <v-col cols="12" md="9">
+        <v-btn @click="addCard" color="success" class="mb-3">
+          <v-icon left>mdi-plus</v-icon> Adaugă Simulare
+        </v-btn>
+      </v-col>
 
-        <v-col cols="12" md="4">
-          <v-card-title>Simulare Plată Credit</v-card-title>
-          <v-card-text>
-            <v-form ref="form">
-              <v-text-field
-                label="Perioada creditului (luni)"
-                v-model="creditPeriod"
-                type="number"
-                min="1"
-                required
-              ></v-text-field>
-              <v-text-field
-                label="Suma totală (RON)"
-                v-model="totalAmount"
-                type="number"
-                min="1"
-                required
-              ></v-text-field>
-              <v-text-field
-                label="Dobândă anuală (%)"
-                v-model="interestRate"
-                type="number"
-                step="0.01"
-                min="0"
-                required
-              ></v-text-field>
-              <v-btn @click="calculateGraph" color="primary">Calculează și afișează graficul</v-btn>
-            </v-form>
-          </v-card-text>
-        </v-col>
-
-        <v-col cols="12" md="8" class="d-flex align-center justify-center">
-          <canvas id="creditChart" style="max-width: 100%; height: 400px;"></canvas>
-        </v-col>
-      </v-row>
-    </v-card> -->
-
-       <v-btn @click="addCard" color="success" class="mb-3">
-      <v-icon left>mdi-plus</v-icon> Adaugă Simulare
-    </v-btn>
+      <v-col cols="12" md=3>
+        <v-btn @click="exportToExcelWithCharts" color="primary" class="mb-3">
+          <v-icon left>mdi-download</v-icon> Exportă Simulări (cu Grafice)
+        </v-btn>
+      </v-col>
+    </v-row>
     <div v-for="(card, index) in cards" :key="index" class="mb-5">
       <v-card class="align-center pa-3 card-style1">
         <v-row>
           <v-col cols="12" md="4">
             <v-card-title>
               Simulare Plată Credit {{ index + 1 }}
-              <v-btn icon @click="removeCard(index)" color="red" class="ml-2">
+              <v-btn icon small @click="removeCard(index)" color="red" class="mdi-close-btn">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
             </v-card-title>
             <v-card-text>
               <v-form>
+                <v-text-field
+                label="Numele Băncii"
+                v-model="card.bankName"
+                type="text"
+                required
+                >  
+                </v-text-field>
                 <v-text-field
                   label="Perioada creditului (luni)"
                   v-model="card.creditPeriod"
@@ -147,6 +124,8 @@
 
 <script>
 import Chart from "chart.js/auto";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 
 export default {
   name: "CreditSimulator",
@@ -159,6 +138,7 @@ export default {
       totalAmount: 288660,
       interestRate: 4.9,
       creditChart: null,
+      bankName:"",
         }
       ],
 
@@ -174,6 +154,79 @@ export default {
     };
   },
   methods: {
+
+    async exportToExcelWithCharts() {
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Simulari");
+
+      let currentRow = 1;
+
+      for (let index = 0; index < this.cards.length; index++) {
+        const card = this.cards[index];
+
+        // Adaugă titlul simulării
+        worksheet.addRow([card.bankName]);
+        currentRow++;
+        
+        // Adaugă datele generale ale simulării
+        worksheet.addRow([
+          "Perioada Creditului (luni)",
+          "Suma Totală (RON)",
+          "Dobândă Anuală (%)",
+        ]);
+        worksheet.addRow([
+          card.creditPeriod,
+          card.totalAmount,
+          card.interestRate,
+        ]);
+        currentRow += 2;
+
+        // Adaugă titlurile coloanelor pentru datele ratei
+        worksheet.addRow(["Luna", "Rata Totală", "Principal", "Dobândă"]);
+        currentRow++;
+
+        // Adaugă datele utilizate în grafic
+        const numPayments = 3;
+        for (let i = 0; i < numPayments; i++) {
+          worksheet.addRow([
+            card.labels[i],
+            card.totalData[i],
+            card.principalData[i],
+            card.interestData[i],
+          ]);
+        }
+
+        // Adaugă graficul în dreapta datelor
+        // const canvas = document.getElementById(`creditChart-${index}`);
+        // if (canvas) {
+        //   const image = canvas.toDataURL("image/png");
+
+        //   const imageId = workbook.addImage({
+        //     base64: image.split(",")[1],
+        //     extension: "png",
+        //   });
+
+        //   // Poziționează graficul în coloana E (a 5-a coloană), aliniat cu datele
+        //   worksheet.addImage(imageId, {
+        //     tl: { col: 5, row: currentRow - numPayments }, // Aliniere la începutul datelor
+        //     ext: { width: 500, height: 300 }, // Dimensiuni grafice
+        //   });
+        // }
+
+      // Adaugă trei rânduri goale între simulări
+      worksheet.addRow([]);
+        worksheet.addRow([]);
+        worksheet.addRow([]);
+        currentRow += 3; // Actualizează numărul rândului curent
+      }
+
+      // Salvează fișierul Excel
+      const buffer = await workbook.xlsx.writeBuffer();
+      saveAs(new Blob([buffer]), "Simulari_Credit.xlsx");
+},
+
+
+
     addCard() {
     this.cards.push({
       creditPeriod: 360,
@@ -264,6 +317,12 @@ export default {
 
     remainingPrincipal -= principalPayment;
   }
+    // Salvează datele în obiectul card
+    card.interestData = interestData;
+  card.principalData = principalData;
+  card.totalData = totalData;
+  card.labels = Array.from({ length: numPayments }, (_, i) => i + 1);
+
 
   // Resetează graficul anterior
   this.destroyChart(card.creditChart);
@@ -390,4 +449,15 @@ export default {
 .card-style1:hover {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
+
+.mdi-close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  width: 36px; /* Dimensiune mai mică pentru buton */
+  height: 36px;
+}
+
+
 </style>

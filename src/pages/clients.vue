@@ -106,7 +106,10 @@
 
   
   <script setup>
-  import { reactive, computed, ref } from 'vue';
+import { reactive, computed, ref } from 'vue';
+import axios from 'axios';
+
+
   
   const search = ref('');
 
@@ -133,133 +136,7 @@
       },
       dialog: false
     },
-    {
-      id: 2,
-      title: 'Nume Client 2',
-      avatar: 'https://ui-avatars.com/api/?name=Nume+Client&background=random',
-      details: {
-        email: 'email2@example.com',
-        phone: '2345678901',
-        cnp: '2980123456789',
-        adresa: 'Adresa 2',
-        numarCont: 'RO50BBBB2C20008594850000',
-        status: 'Inactiv',
-        scorCredit: '800',
-        venitAnual: '40000',
-        venitLunar: '5000',
-        Altceva: 'altceva2',
-      },
-      dialog: false
-    },
-    {
-      id: 1,
-      title: 'Nume Client 3',
-      avatar: 'https://ui-avatars.com/api/?name=Nume+Client&background=random',
-      details: {
-        email: 'email1@example.com',
-        phone: '1234567890',
-        cnp: '1980123456789',
-        adresa: 'Adresa 1',
-        numarCont: 'RO49AAAA1B31007593840000',
-        status: 'Activ',
-        scorCredit: '750',
-        venitAnual: '30000',
-        venitLunar: '4000',
-        Altceva: 'altceva',
-      },
-      dialog: false
-    },
-    {
-      id: 1,
-      title: 'Nume Client 4',
-      avatar: 'https://ui-avatars.com/api/?name=Nume+Client&background=random',
-      details: {
-        email: 'email1@example.com',
-        phone: '1234567890',
-        cnp: '1980123456789',
-        adresa: 'Adresa 1',
-        numarCont: 'RO49AAAA1B31007593840000',
-        status: 'Activ',
-        scorCredit: '750',
-        venitAnual: '30000',
-        venitLunar: '4000',
-        Altceva: 'altceva',
-      },
-      dialog: false
-    },
-    {
-      id: 1,
-      title: 'Nume Client 5',
-      avatar: 'https://ui-avatars.com/api/?name=Nume+Client&background=random',
-      details: {
-        email: 'email1@example.com',
-        phone: '1234567890',
-        cnp: '1980123456789',
-        adresa: 'Adresa 1',
-        numarCont: 'RO49AAAA1B31007593840000',
-        status: 'Activ',
-        scorCredit: '750',
-        venitAnual: '30000',
-        venitLunar: '4000',
-        Altceva: 'altceva',
-      },
-      dialog: false
-    },
-    {
-      id: 1,
-      title: 'Nume Client 6',
-      avatar: 'https://ui-avatars.com/api/?name=Nume+Client&background=random',
-      details: {
-        email: 'email1@example.com',
-        phone: '1234567890',
-        cnp: '1980123456789',
-        adresa: 'Adresa 1',
-        numarCont: 'RO49AAAA1B31007593840000',
-        status: 'Activ',
-        scorCredit: '750',
-        venitAnual: '30000',
-        venitLunar: '4000',
-        Altceva: 'altceva',
-      },
-      dialog: false
-    },
-    {
-      id: 1,
-      title: 'Nume Client 7',
-      avatar: 'https://ui-avatars.com/api/?name=Nume+Client&background=random',
-      details: {
-        email: 'email1@example.com',
-        phone: '1234567890',
-        cnp: '1980123456789',
-        adresa: 'Adresa 1',
-        numarCont: 'RO49AAAA1B31007593840000',
-        status: 'Activ',
-        scorCredit: '750',
-        venitAnual: '30000',
-        venitLunar: '4000',
-        Altceva: 'altceva',
-      },
-      dialog: false
-    },
-    {
-      id: 1,
-      title: 'Nume Client 8',
-      avatar: 'https://ui-avatars.com/api/?name=Nume+Client&background=random',
-      details: {
-        email: 'email1@example.com',
-        phone: '1234567890',
-        cnp: '1980123456789',
-        adresa: 'Adresa 1',
-        numarCont: 'RO49AAAA1B31007593840000',
-        status: 'Activ',
-        scorCredit: '750',
-        venitAnual: '30000',
-        venitLunar: '4000',
-        Altceva: 'altceva',
-      },
-      dialog: false
-    },
-    // Define additional cards here with unique ids and avatars
+
   ]);
   
   const filteredCards = computed(() => {
@@ -275,6 +152,20 @@
   function closeDialog(card) {
     card.dialog = false;
   }
+
+  const fetchCustomers = async () => {
+    try {
+      const response = await axios.get ('http://127.0.0.1:8000/api/customers/');
+      const customers = response.data;
+      console.log('customers', customers);
+    }catch (error) {
+    console.error("Error fetching customers:", error);
+  }
+  };
+  // Apel fetch la încărcarea componentului
+    onMounted(() => {
+      fetchCustomers();
+    });
   </script>
   
   <style lang="scss" scoped>
