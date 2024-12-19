@@ -38,13 +38,13 @@
             {{ card.title }}
           </v-card-title>
           <v-card-text class="text-caption2">
-            <div v-for="(value, key) in card.details" :key="key" v-if="Object.keys(card.details).indexOf(key) < 10">
+            <div v-for="([key, value], index) in card.detailsPreview" :key="key">
               <strong>{{ key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()) }}:</strong> {{ value }}
             </div>
             <v-divider class="my-3 devider-page"></v-divider>
 
             <v-btn
-              v-if="Object.keys(card.details).length > 7"
+              v-if="Object.keys(card.details).length > card.detailsPreview.length"
               text color="primary"
               @click="openDialog(card)"
               class="text-caption2 see-more-button"
@@ -66,14 +66,17 @@
             <!-- Datele clientului organizate în stânga și dreapta -->
             <v-card-text>
               <v-row>
+                <!-- Prima coloană cu primele 10 proprietăți -->
                 <v-col cols="6">
-                  <div v-for="(value, key, index) in card.details" :key="index" v-if="index % 2 !== 0">
-                    <strong>{{ key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()) }}:</strong> {{ value }}
+                  <div v-for="([key, value], index) in Object.entries(card.details).slice(0, 10)" :key="index">
+                    <strong>{{ String(key).replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()) }}:</strong> {{ value }}
                   </div>
                 </v-col>
+
+                <!-- A doua coloană cu restul proprietăților -->
                 <v-col cols="6">
-                  <div v-for="(value, key, index) in card.details" :key="index" v-if="index % 2 !== 0">
-                    <strong>{{ key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()) }}:</strong> {{ value }}
+                  <div v-for="([key, value], index) in Object.entries(card.details).slice(10)" :key="index">
+                    <strong>{{ String(key).replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()) }}:</strong> {{ value }}
                   </div>
                 </v-col>
               </v-row>
@@ -81,23 +84,52 @@
 
             <v-divider class="my-3 devider-page"></v-divider>
 
-            <v-row>
-              <v-col cols="3" md="3">
-              <v-card-actions>
-              <v-spacer></v-spacer>
-                <v-btn class="docs" color="primary" text @click="">Documente Client</v-btn>
-            </v-card-actions>
-            </v-col>
-            <!-- Buton de închidere -->
-            <v-col cols="3" md="9">
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="red" text @click="closeDialog(card)">Închide</v-btn>
-            </v-card-actions>
-            </v-col>
-            </v-row>
+            <v-row align="center">
+              <!-- Primul buton -->
+              <v-col cols="12" md="3">
+                <v-card-actions>
+                  <v-btn class="docs" color="primary" text @click="">
+                    Documente Client
+                  </v-btn>
+              </v-card-actions>
+              </v-col>
 
+              <!-- Al doilea buton -->
+              <v-col cols="12" md="3">
+                <v-btn
+                  v-if="card.details.stareCivila === 'da'"
+                  color="primary"
+                  text
+                  @click="openPartnerDialog"
+                >
+                  Vezi profil partener
+                </v-btn>
+              </v-col>
+
+              <!-- Buton de închidere -->
+              <v-col cols="12" md="6" class="text-end">
+                <v-btn color="red" text @click="closeDialog(card)">
+                  Închide
+                </v-btn>
+              </v-col>
+            </v-row>
           </v-card>
+            <!-- Dialog pentru profilul partenerului -->
+          <v-dialog v-model="partnerDialog" persistent max-width="600px">
+            <v-card class="pa-3 custom-dialog">
+              <v-card-title class="headline grey lighten-2 pa-3">
+                Profil Partener
+              </v-card-title>
+              <v-divider class="my-3 devider-page"></v-divider>
+              <v-card-text>
+                <p>Momentan nu există date pentru partener.</p>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="red" text @click="closePartnerDialog">Închide</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </v-dialog>
       </v-col>
     </v-row>
@@ -105,39 +137,17 @@
 </template>
 
   
-  <script setup>
-import { reactive, computed, ref } from 'vue';
-import axios from 'axios';
-
-
+<script setup>
+  import { reactive, computed, ref } from 'vue';
+  import axios from 'axios';
   
   const search = ref('');
-
   const sortOrder = ref('');
   const sortOptions = ['Urgent de contactat', 'A-Z', 'Z-A', 'Recenți adăugați'];
 
+  const api_url = import.meta.env.VITE_BACKEND_HOST;
   
-  const cards = reactive([
-    {
-      id: 1,
-      title: 'Nume Client 1',
-      avatar: 'https://ui-avatars.com/api/?name=Nume+Client&background=random',
-      details: {
-        email: 'email1@example.com',
-        phone: '1234567890',
-        cnp: '1980123456789',
-        adresa: 'Adresa 1',
-        numarCont: 'RO49AAAA1B31007593840000',
-        status: 'Activ',
-        scorCredit: '750',
-        venitAnual: '30000',
-        venitLunar: '4000',
-        Altceva: 'altceva',
-      },
-      dialog: false
-    },
-
-  ]);
+  const cards = reactive([]);
   
   const filteredCards = computed(() => {
     return cards.filter(card =>
@@ -153,12 +163,58 @@ import axios from 'axios';
     card.dialog = false;
   }
 
+  const partnerDialog = ref(false);
+
+  function openPartnerDialog() {
+    partnerDialog.value = true;
+  }
+
+  function closePartnerDialog() {
+    partnerDialog.value = false;
+  }
+
+
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get ('http://127.0.0.1:8000/api/customers/');
+      const response = await axios.get(`${api_url}customers/`);
       const customers = response.data;
       console.log('customers', customers);
-    }catch (error) {
+
+      const customersData = customers.map((customer) => {
+      const details = {
+        email: customer.email || 'N/A',
+        telefon: customer.telefon || 'N/A',
+        adresa: customer.stare_domiciliu || 'N/A',
+        venitLunar: customer.venitLunar || 'N/A',
+        bonuriMasa: customer.bonuri_masa || 'N/A',
+        cnp: customer.cnp || 'N/A',
+        contSalariuRaiffeisen: customer.cont_salariu_raiffeisen || 'N/A',
+        conturiAlteBanci: customer.conturi_alte_banci || 'N/A',
+        dataInregistrat: customer.data_inregistrat || 'N/A',
+        educatie: customer.educatie || 'N/A',
+        etapaCreditate: customer.etapa_creditate || 'N/A',
+        litigii: customer.litigii || 'N/A',
+        nationalitate: customer.nationalitate || 'N/A',
+        nrCopiiIntretinere: customer.nr_copii_intretinere || 'N/A',
+        nrPersIntretinere: customer.nr_pers_intretinere || 'N/A',
+        stareCivila: customer.stare_civila || 'N/A',
+        varsta: customer.varsta || 'N/A',
+        vechimeAdresa: customer.vechime_adresa || 'N/A',
+      };
+
+      return {
+        id: customer.id,
+        avatar: `https://ui-avatars.com/api/?name=${customer.nume || 'N/A'}+${customer.prenume || 'N/A'}&background=random`,
+        details,
+        detailsPreview: Object.entries(details).slice(0, 9), // Primele 7 câmpuri
+        title: `${customer.nume} ${customer.prenume}`,
+        dialog: false,
+      };
+    });
+        // Populează array-ul `cards`
+        cards.splice(0, cards.length, ...customersData);
+
+    } catch (error) {
     console.error("Error fetching customers:", error);
   }
   };
@@ -180,7 +236,7 @@ import axios from 'axios';
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(0, 0, 0, 0.2);
-    height: 45vh;
+    height: fit-content;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
   
@@ -190,7 +246,7 @@ import axios from 'axios';
   }
   
   .v-card-title {
-    font-size: 1.25rem;
+    font-size: 1.5vh;
     font-weight: bold;
   }
   
@@ -199,9 +255,8 @@ import axios from 'axios';
 }
   
   .text-caption2 {
-    font-weight: 300;
+    font-size: 1.7vh;
     font-family: 'Courier New', Courier, monospace;
-    font-size: 90% !important;
   }
 
   .custom-dialog {
