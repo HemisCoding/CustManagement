@@ -13,6 +13,7 @@ declare module 'vue' {
     Body: typeof import('./components/base/Body.vue')['default']
     Btn: typeof import('./components/base/Btn.vue')['default']
     Card: typeof import('./components/blog/Card.vue')['default']
+    Dashboard: typeof import('./components/Dashboard.vue')['default']
     Divider: typeof import('./components/base/Divider.vue')['default']
     Feature: typeof import('./components/base/Feature.vue')['default']
     FeatureAlt: typeof import('./components/base/FeatureAlt.vue')['default']
