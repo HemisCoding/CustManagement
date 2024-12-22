@@ -19,14 +19,14 @@
           :items="sortOptions"
           label="Sortează după"
           solo-inverted
-          @change="sortCards"
-        ></v-select>
+          @update:modelValue="sortCards"
+          ></v-select>
       </v-col>
     </v-row>
 
     <v-row>
       <v-col
-        v-for="card in filteredCards"
+        v-for="card in paginatedCards"
         :key="card.id"
         cols="12" sm="6" md="3"
       >
@@ -122,8 +122,21 @@
               </v-card-title>
               <v-divider class="my-3 devider-page"></v-divider>
               <v-card-text>
-                <p>Momentan nu există date pentru partener.</p>
-              </v-card-text>
+                <v-row>
+                <!-- Prima coloană cu primele 10 proprietăți -->
+                <v-col cols="6">
+                  <div v-for="([key, value], index) in Object.entries(card.details).slice(0, 10)" :key="index">
+                    <strong>{{ String(key).replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()) }}:</strong> {{ value }}
+                  </div>
+                </v-col>
+
+                <!-- A doua coloană cu restul proprietăților -->
+                <v-col cols="6">
+                  <div v-for="([key, value], index) in Object.entries(card.details).slice(10)" :key="index">
+                    <strong>{{ String(key).replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()) }}:</strong> {{ value }}
+                  </div>
+                </v-col>
+              </v-row>              </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="red" text @click="closePartnerDialog">Închide</v-btn>
@@ -133,6 +146,11 @@
         </v-dialog>
       </v-col>
     </v-row>
+    <v-pagination
+      v-model="currentPage"
+      :length="Math.ceil(filteredCards.length / pageSize)"
+      class="mt-4 text-white"
+    ></v-pagination>
   </v-container>
 </template>
 
@@ -143,7 +161,7 @@
   
   const search = ref('');
   const sortOrder = ref('');
-  const sortOptions = ['Urgent de contactat', 'A-Z', 'Z-A', 'Recenți adăugați'];
+  const sortOptions = ['Urgent de contactat', 'A-Z', 'Z-A', 'Recent adăugați'];
 
   const api_url = import.meta.env.VITE_BACKEND_HOST;
   
@@ -171,6 +189,28 @@
 
   function closePartnerDialog() {
     partnerDialog.value = false;
+  }
+
+  const currentPage = ref(1);
+  const pageSize = ref(20)
+
+  //Pagination
+  const paginatedCards = computed(() => {
+    const start = (currentPage.value - 1) * pageSize.value;
+    const end = start + pageSize.value;
+    return filteredCards.value.slice(start, end);
+  })
+
+  //Sorting
+  function sortCards() {
+    console.log('Sort Order:', sortOrder.value); // Verifică dacă sortOrder se schimbă
+    if (sortOrder.value === 'A-Z') {
+      cards.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (sortOrder.value === 'Z-A') {
+      cards.sort((a, b) => b.title.localeCompare(a.title));
+    } else if (sortOrder.value === 'Recent adăugați') {
+      cards.sort((a, b) => new Date(b.details.dataInregistrat) - new Date (a.details.dataInregistrat));
+    }
   }
 
 
@@ -218,6 +258,7 @@
     console.error("Error fetching customers:", error);
   }
   };
+
   // Apel fetch la încărcarea componentului
     onMounted(() => {
       fetchCustomers();
@@ -264,20 +305,19 @@
   border-radius: 8px;
 }
 
-.dialog-title {
-  color: #333; /* Titlu gri închis */
-}
+  .dialog-title {
+    color: #333; /* Titlu gri închis */
+  }
 
-.devider-page {
-  color: white;
-  height: 50px !important;
-}
+  .devider-page {
+    color: white;
+    height: 50px !important;
+  }
 
-.docs {
-  border: 1px solid rgb(138, 128, 128);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-
-}
+  .docs {
+    border: 1px solid rgb(138, 128, 128);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  }
 
   
   </style>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-  import NotFound from '@/views/NotFound.vue'
   interface Props {
     id: string
   }
