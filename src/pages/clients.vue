@@ -19,14 +19,14 @@
           :items="sortOptions"
           label="Sortează după"
           solo-inverted
-          @change="sortCards"
+          @update:modelValue="sortCards"
         ></v-select>
       </v-col>
     </v-row>
 
     <v-row>
       <v-col
-        v-for="card in filteredCards"
+        v-for="card in paginatedCards"
         :key="card.id"
         cols="12" sm="6" md="3"
       >
