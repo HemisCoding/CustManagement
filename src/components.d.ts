@@ -22,7 +22,6 @@ declare module 'vue' {
     LineChart: typeof import('./components/LineChart.vue')['default']
     Post: typeof import('./components/blog/Post.vue')['default']
     PricingPlan: typeof import('./components/base/PricingPlan.vue')['default']
-    Project: typeof import('./components/base/Project.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Section: typeof import('./components/base/Section.vue')['default']

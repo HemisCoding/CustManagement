@@ -1,6 +1,5 @@
 <script setup lang="ts">
 
-import { useAppData } from '@/stores/mockup'
 import { useDisplay } from 'vuetify'
 import { useRoute } from 'vue-router'
 
@@ -11,7 +10,6 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-const appData = useAppData()
 const route = useRoute()
 const { mdAndUp } = useDisplay()
 const drawer = ref(false)
