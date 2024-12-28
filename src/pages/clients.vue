@@ -202,7 +202,7 @@
 
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get(`${api_url}customers/`);
+      const response = await axios.get(`http://16.170.244.158:8000/api/customers/`);
       const customers = response.data;
       console.log('customers', customers);
 
