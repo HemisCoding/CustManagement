@@ -19,14 +19,14 @@
           :items="sortOptions"
           label="Sortează după"
           solo-inverted
-          @change="sortCards"
+          @update:modelValue="sortCards"
         ></v-select>
       </v-col>
     </v-row>
 
     <v-row>
       <v-col
-        v-for="card in filteredCards"
+        v-for="card in paginatedCards"
         :key="card.id"
         cols="12" sm="6" md="3"
       >
@@ -133,6 +133,11 @@
         </v-dialog>
       </v-col>
     </v-row>
+    <v-pagination
+      v-model="currentPage"
+      :length="Math.ceil(filteredCards.length / pageSize)"
+      class="mt-4 text-white"
+    ></v-pagination>
   </v-container>
 </template>
 
@@ -143,7 +148,7 @@
   
   const search = ref('');
   const sortOrder = ref('');
-  const sortOptions = ['Urgent de contactat', 'A-Z', 'Z-A', 'Recenți adăugați'];
+  const sortOptions = ['Urgent de contactat', 'A-Z', 'Z-A', 'Recent adăugați'];
 
   const api_url = import.meta.env.VITE_BACKEND_HOST;
   
@@ -173,10 +178,31 @@
     partnerDialog.value = false;
   }
 
+  const currentPage = ref(1);
+  const pageSize = ref(20)
+  //Pagination
+  const paginatedCards = computed(() => {
+    const start = (currentPage.value - 1) * pageSize.value;
+    const end = start + pageSize.value;
+    return filteredCards.value.slice(start, end);
+  })
+  //Sorting
+  function sortCards() {
+    console.log('Sort Order:', sortOrder.value); // Verifică dacă sortOrder se schimbă
+    if (sortOrder.value === 'A-Z') {
+      cards.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (sortOrder.value === 'Z-A') {
+      cards.sort((a, b) => b.title.localeCompare(a.title));
+    } else if (sortOrder.value === 'Recent adăugați') {
+      cards.sort((a, b) => new Date(b.details.dataInregistrat) - new Date (a.details.dataInregistrat));
+    }
+  }
+
+
 
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get(`${api_url}customers/`);
+      const response = await axios.get(`http://16.170.244.158:8000/api/customers/`);
       const customers = response.data;
       console.log('customers', customers);
 

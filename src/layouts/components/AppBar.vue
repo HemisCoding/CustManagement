@@ -1,10 +1,7 @@
 <script setup>
-import BlogSidebar from './BlogSidebar.vue';
-import BaseSidebar from './BaseSidebar.vue';
 import { useAppData } from '@/stores/mockup';
 import { useDisplay } from 'vuetify';
 import { useRoute } from 'vue-router';
-import customerslogo from '@/assets/customers-logo.png';
 
 const appData = useAppData();
 const route = useRoute();
