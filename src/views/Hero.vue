@@ -7,32 +7,32 @@
       <v-col cols="5" md="2">
         <v-card class="d-flex flex-column align-center pa-3 card-style1">
           <v-icon large color="primary">mdi-account-group</v-icon>
-          <v-card-title>Total Clienti</v-card-title>
-          <v-card-text>120</v-card-text>
+          <v-card-title>Total Clienți</v-card-title>
+          <v-card-text>{{ totalClients }}</v-card-text>
         </v-card>
       </v-col>
 
       <v-col cols="5" md="2">
         <v-card class="d-flex flex-column align-center pa-3 card-style1">
           <v-icon large color="primary">mdi-progress-check</v-icon>
-          <v-card-title>Aplicatii in Progres</v-card-title>
-          <v-card-text>15</v-card-text>
+          <v-card-title>Aplicații în Progres</v-card-title>
+          <v-card-text>{{ applicationsInProgress }}</v-card-text>
         </v-card>
       </v-col>
 
       <v-col cols="5" md="2">
         <v-card class="d-flex flex-column align-center pa-3 card-style1">
           <v-icon large color="primary">mdi-check-bold</v-icon>
-          <v-card-title>Aplicatii Finalizate</v-card-title>
-          <v-card-text>400</v-card-text>
+          <v-card-title>Aplicații Finalizate</v-card-title>
+          <v-card-text>{{ completedApplications }}</v-card-text>
         </v-card>
       </v-col>
 
       <v-col cols="5" md="2">
         <v-card class="d-flex flex-column align-center pa-3 card-style1">
           <v-icon large color="primary">mdi-cash-multiple</v-icon>
-          <v-card-title>Total Suma Creditata</v-card-title>
-          <v-card-text>$1.2M</v-card-text>
+          <v-card-title>Total Sumă Creditată</v-card-title>
+          <v-card-text>{{ formatNumber(totalCreditSum) }} RON</v-card-text>
         </v-card>
       </v-col>
 
@@ -46,8 +46,8 @@
       <v-col cols="5" md="2">
         <v-card class="d-flex flex-column align-center pa-3 card-style1">
           <v-icon large color="primary">mdi-offer</v-icon>
-          <v-card-title>Dobanda minima</v-card-title>
-          <v-card-text>4,9%</v-card-text>
+          <v-card-title>Dobândă minimă</v-card-title>
+          <v-card-text>{{ minimumInterestRate ? minimumInterestRate.toFixed(2) : '-' }} %</v-card-text>
         </v-card>
       </v-col>
     </v-row>
@@ -184,14 +184,63 @@ import LineChart from "@/layouts/components/LineChart.vue";
 import BarChart from "@/layouts/components/BarChart.vue";
 import PieChart from "@/layouts/components/PieChart.vue";
 import BarCrediteDiferite from "@/layouts/components/BarCrediteDiferite.vue";
+import axios from "axios";
 
+const api_clients = import.meta.env.VITE_BACKEND_HOST;
+
+const totalClients = ref(0);
+const applicationsInProgress = ref(0);
+const completedApplications = ref(0);
+const totalCreditSum = ref(0);
+const minimumInterestRate = ref(null);
+
+
+const formatNumber = (value) => {
+  return new Intl.NumberFormat('ro-RO', { maximumFractionDigits: 0 }).format(value);
+};
+
+
+const fetchClientStats = async () => {
+  try {
+    const response = await axios.get(api_clients + 'customers/total_clients/');
+    totalClients.value = response.data.total_clients;
+    applicationsInProgress.value = response.data.applications_in_progress;
+    completedApplications.value = response.data.completed_applications;
+    totalCreditSum.value = response.data.total_credit_sum;
+  } catch (error) {
+    console.error("Error fetching client statistics:", error);
+  }
+};
+
+  // Fetch data from the API
+  const fetchBankData = async () => {
+    try {
+      const response = await axios.get(api_clients + 'interestrate/');
+  
+      // Update chart data with sorted API response
+      const banks = response.data;
+      console.log(banks)
+
+        // Calculate the minimum interest rate
+      minimumInterestRate.value = Math.min(...banks.map((bank) => bank.interest_rate));
+  
+    } catch (error) {
+      console.error('Error fetching bank data:', error);
+    }
+  };
+  
+
+onMounted(() => {
+  fetchClientStats();
+  fetchBankData();
+});
 </script>
 
 
 <style lang="scss" scoped>
 .container {
   background-image: linear-gradient(to top, #09203f 0%, #537895 100%);
-  height: 100%;
+  height: 100vh;
 }
 
 .card-style1 {

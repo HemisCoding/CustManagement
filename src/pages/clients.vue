@@ -37,10 +37,37 @@
             </v-avatar>
             {{ card.title }}
           </v-card-title>
+          
           <v-card-text class="text-caption2">
             <div v-for="([key, value], index) in card.detailsPreview" :key="key">
               <strong>{{ key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()) }}:</strong> {{ value }}
             </div>
+            <br/>
+              <!-- Progress Bar -->
+              <div class="phase-progress-bar">
+              <!-- Progress Bar -->
+              <v-progress-linear
+                height="10"
+                color="transparent"
+                background-color="grey"
+                buffer-value="100"
+              >
+                <template v-slot="{ props }">
+                  <div class="phases">
+                    <div
+                      v-for="(phase, index) in creditPhases"
+                      :key="index"
+                      class="phase-section"
+                      :style="getPhaseStyle(index, getPhaseIndex(card.details.etapaCreditare))"
+                    ></div>
+                  </div>
+                </template>
+              </v-progress-linear>
+
+              <!-- Current Phase Label -->
+              <div class="phase-label">{{ card.details.etapaCreditare }}</div>
+            </div>
+
             <v-divider class="my-3 devider-page"></v-divider>
 
             <v-btn
@@ -88,7 +115,11 @@
               <!-- Primul buton -->
               <v-col cols="12" md="3">
                 <v-card-actions>
-                  <v-btn class="docs" color="primary" text @click="">
+                  <v-btn
+                  class="docs"
+                  color="primary"
+                  :href="getClientDocs()"
+                  text @click="">
                     Documente Client
                   </v-btn>
               </v-card-actions>
@@ -159,6 +190,47 @@
       card.title.toLowerCase().includes(search.value.toLowerCase())
     );
   });
+
+  defineProps({
+  currentPhase: String, // Current phase name
+});
+
+const creditPhases = [
+  { name: "Initializare Aplicatie", color: "#03C03C" },
+  { name: "Verificare Documente", color: "#03C03C" },
+  { name: "Analiza Financiara", color: "#03C03C" },
+  { name: "Aprobare Credit", color: "#03C03C" },
+  { name: "Acordare Credit", color: "#03C03C" },
+];
+
+const getPhaseIndex = (etapaCreditare) => {
+  return creditPhases.findIndex((phase) => phase.name === etapaCreditare);
+};
+
+
+//   const getPhaseIndex = (etapaCreditare) => {
+//   const index = creditPhases.findIndex((phase) => phase.name === etapaCreditare);
+//   return index >= 0 ? index : -1; // Return -1 if not found
+// };
+
+const getPhaseStyle = (index, currentPhaseIndex) => {
+  const isCompleted = index <= currentPhaseIndex;
+  const phase = creditPhases[index];
+  return {
+    backgroundColor: isCompleted ? phase.color : 'lightgrey',
+    opacity: isCompleted ? 1 : 0.5,
+    flex: 1,
+    height: '100%',
+  };
+};
+
+
+const getPhaseColor = (etapaCreditare) => {
+  const phase = creditPhases.find((phase) => phase.name === etapaCreditare);
+  return phase ? phase.color : "grey"; // Default to grey if not found
+};
+
+
   
   function openDialog(card) {
     card.dialog = true;
@@ -198,11 +270,9 @@
     }
   }
 
-
-
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get(`http://16.170.244.158:8000/api/customers/`);
+      const response = await axios.get(api_url + `customers/`);
       const customers = response.data;
       console.log('customers', customers);
 
@@ -212,13 +282,15 @@
         telefon: customer.telefon || 'N/A',
         adresa: customer.stare_domiciliu || 'N/A',
         venitLunar: customer.venitLunar || 'N/A',
+        creditCurent: customer.valoare_credit_actual || 'N/A',
+        totalCredit: customer.valoare_totala_credite || 'N/A',
         bonuriMasa: customer.bonuri_masa || 'N/A',
         cnp: customer.cnp || 'N/A',
         contSalariuRaiffeisen: customer.cont_salariu_raiffeisen || 'N/A',
         conturiAlteBanci: customer.conturi_alte_banci || 'N/A',
         dataInregistrat: customer.data_inregistrat || 'N/A',
         educatie: customer.educatie || 'N/A',
-        etapaCreditate: customer.etapa_creditate || 'N/A',
+        etapaCreditare: customer.etapa_creditare || 'N/A',
         litigii: customer.litigii || 'N/A',
         nationalitate: customer.nationalitate || 'N/A',
         nrCopiiIntretinere: customer.nr_copii_intretinere || 'N/A',
@@ -244,6 +316,13 @@
     console.error("Error fetching customers:", error);
   }
   };
+
+  // Get Client Docs from S3
+const getClientDocs = () => {
+  const baseURL = "https://eu-central-1.console.aws.amazon.com/s3/buckets/documentatie-banci";
+  // return `${baseURL}?region=eu-central-1&bucketType=general&prefix=${encodeURIComponent(bankName)}/&showversions=false`;
+  return `https://eu-north-1.console.aws.amazon.com/s3/buckets/clients-profiles?region=eu-north-1&bucketType=general&prefix=documente-clienti/&showversions=false`;
+};
   // Apel fetch la încărcarea componentului
     onMounted(() => {
       fetchCustomers();
@@ -302,9 +381,41 @@
 .docs {
   border: 1px solid rgb(138, 128, 128);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-
 }
 
-  
+// .phase-progress-bar {
+//   text-align: center;
+//   margin-top: 8px;
+// }
+
+// .phase-label {
+//   margin-top: 4px;
+//   font-size: 14px;
+//   font-weight: 500;
+// }
+
+.phase-progress-bar {
+  position: relative;
+  width: 100%;
+}
+
+.phases {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.phase-section {
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+
+.phase-label {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+}
+
+
   </style>
   

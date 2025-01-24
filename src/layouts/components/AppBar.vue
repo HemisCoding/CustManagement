@@ -20,7 +20,7 @@ const pages = ref([
   { name: 'Dashboard', icon: 'mdi-home' },
   { name: 'Clienti', icon: 'mdi-account-group' },
   { name: 'Simulare Credit', icon: 'mdi-finance' },
-  { name: 'knowhow', icon: 'mdi-file-document-alert' },
+  { name: 'Dobânzi Bănci', icon: 'mdi-file-document-alert' },
   { name: 'Settings', icon: 'mdi-cogs' },
 ]);
 
@@ -65,8 +65,8 @@ function selectPage(page) {
           ? '/clients' 
           : page.name === 'Simulare Credit' 
           ? '/simulareCredit' 
-          : page.name === 'Know How' 
-          ? '/knowhow' 
+          : page.name === 'Dobânzi Bănci'
+          ? '/dobanzibanci' 
           : '/' + page.name.toLowerCase().replace(/\s+/g, '-')"        
           class="icon-centered"
         @click="selectPage(page)"
