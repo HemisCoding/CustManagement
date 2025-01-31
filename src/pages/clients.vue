@@ -272,8 +272,14 @@ const getPhaseColor = (etapaCreditare) => {
 
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get(api_url + `customers/`);
+      const token = localStorage.getItem("token");
+      const response = await axios.get(api_url + `customers/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,  // ✅ Include JWT token in the request
+      },
+    });
       const customers = response.data;
+      
       console.log('customers', customers);
 
       const customersData = customers.map((customer) => {

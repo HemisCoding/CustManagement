@@ -1,38 +1,15 @@
 <template>
-    <v-container class="pa-5" fluid>
-      <v-row align="center" justify="center">
-        <v-col cols="12" md="6">
-          <v-card class="pa-5" elevation="2">
-            <v-card-title class="headline text-center">Logare</v-card-title>
-            <v-divider class="my-4"></v-divider>
-            <v-form @submit.prevent="login">
-              <v-text-field
-                v-model="email"
-                label="Email"
-                required
-              ></v-text-field>
-              <v-text-field
-                v-model="password"
-                label="Parolă"
-                type="password"
-                required
-              ></v-text-field>
-              <v-btn
-                class="mt-4"
-                block
-                color="primary"
-                :loading="loading"
-                type="submit"
-              >
-                Logare
-              </v-btn>
-              <v-alert v-if="errorMessage" type="error" class="mt-4">
-                {{ errorMessage }}
-              </v-alert>
-            </v-form>
-          </v-card>
-        </v-col>
-      </v-row>
+    <v-container class="pa-5 container login-container d-flex align-center justify-center" fluid >
+      <v-card class="pa-5 card-style1" outlined>
+        <v-card-title>Login</v-card-title>
+        <v-card-text>
+          <v-form @submit.prevent="login">
+            <v-text-field v-model="email" label="Email" required></v-text-field>
+            <v-text-field v-model="password" label="Password" type="password" required></v-text-field>
+            <v-btn color="primary" type="submit">Login</v-btn>
+          </v-form>
+        </v-card-text>
+      </v-card>
     </v-container>
   </template>
   
@@ -40,72 +17,59 @@
   import axios from "axios";
   
   export default {
-    name: "Login",
     data() {
       return {
         email: "",
         password: "",
-        loading: false,
-        errorMessage: null,
-        backendUrl: "http://localhost:8080", // Replace this with your backend URL
       };
     },
     methods: {
       async login() {
-        this.loading = true;
-        this.errorMessage = null;
-  
         try {
-          // Include CSRF token if required
-          axios.defaults.headers.common["X-CSRFToken"] = document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("csrftoken"))
-            ?.split("=")[1];
+          const response = await axios.post("http://127.0.0.1:8000/login/", {
+            email: this.email,
+            password: this.password,
+          });
   
-          // Perform login
-          const response = await axios.post(
-            `${this.backendUrl}/api-auth/login/`,
-            {
-              username: this.email, // Match Django's default LoginView
-              password: this.password,
-            },
-            // { withCredentials: true } 
-          );
+          // ✅ Store JWT token in localStorage
+          localStorage.setItem("token", response.data.access);
+          localStorage.setItem("role", response.data.role);
+          localStorage.setItem("email", response.data.email);
   
-          if (response.status === 200) {
-            this.$router.push("/dashboard"); // Redirect to dashboard
-          }
+          console.log("Login successful! Token:", response.data.access);
+          alert("Login successful!");
+  
+          this.$router.push("/"); // ✅ Redirect to home page after login
         } catch (error) {
-          if (error.response && error.response.status === 403) {
-            this.errorMessage = "Email-ul sau parola este greșită.";
-          } else {
-            this.errorMessage = "A apărut o eroare. Încercați din nou.";
-          }
-        } finally {
-          this.loading = false;
+          console.error("Login failed:", error);
+          alert("Invalid credentials or API not found!");
         }
-      },
-    },
+      }
+    }
   };
   </script>
   
+  
   <style scoped>
-  .pa-10 {
-    max-width: 800px;
-    margin: auto;
+  .container {
+    background-image: linear-gradient(to top, #09203f 0%, #537895 100%);
+    height: 100vh;
   }
   
-  .bigger-card {
-    padding: 40px;
-    border-radius: 15px;
+  .card-style1 {
+    color: white;
+    background-color: transparent;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    height: fit-content;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    width: 20vw;
   }
   
-  .input-large {
-    font-size: 18px;
-  }
-  
-  .mt-6 {
-    margin-top: 24px !important;
+  .card-style1:hover {
+    transform: scale(1.01);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
   }
   </style>
   

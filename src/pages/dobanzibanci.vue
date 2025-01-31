@@ -99,6 +99,7 @@ const saveBanks = async () => {
       banks: plainData,
       deleted: deletedBanks.value,
     });
+    
 
     // Resetează lista de bănci șterse
     deletedBanks.value = [];
@@ -113,7 +114,13 @@ const saveBanks = async () => {
 // Preia datele existente din backend
 const fetchBanks = async () => {
   try {
-    const response = await axios.get(API_GET + 'interestrate/');
+    const token = localStorage.getItem("token");
+
+    const response = await axios.get(API_GET + 'interestrate/', {
+      headers: {
+        Authorization: `Bearer ${token}`,  // ✅ Include JWT token in the request
+      },
+    });
     banks.value = response.data; // Asigură-te că răspunsul conține id, name și interest_rate
     console.log("Date preluate din backend:", banks.value);
   } catch (error) {

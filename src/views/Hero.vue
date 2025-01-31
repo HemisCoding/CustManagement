@@ -202,7 +202,14 @@ const formatNumber = (value) => {
 
 const fetchClientStats = async () => {
   try {
-    const response = await axios.get(api_clients + 'customers/total_clients/');
+    // const response = await axios.get(api_clients + 'customers/total_clients/');
+
+    const token = localStorage.getItem("token");
+    const response = await axios.get(api_clients + 'customers/total_clients/', {
+      headers: {
+        Authorization: `Bearer ${token}`,  // ✅ Include JWT token in the request
+      },
+    });
     totalClients.value = response.data.total_clients;
     applicationsInProgress.value = response.data.applications_in_progress;
     completedApplications.value = response.data.completed_applications;
