@@ -12,8 +12,54 @@
       </v-card>
     </v-container>
   </template>
-  
   <script>
+  import axios from "axios";
+  import { useAuthStore } from "@/stores/auth"; // Import Pinia store
+  import { useRouter } from "vue-router";
+  
+  export default {
+    setup() {
+      const auth = useAuthStore();
+      const router = useRouter();
+  
+      return { auth, router };
+    },
+    data() {
+      return {
+        email: "",
+        password: "",
+      };
+    },
+    methods: {
+  async login() {
+    try {
+      const response = await axios.post("http://127.0.0.1:8000/login/", {
+        email: this.email,
+        password: this.password,
+      });
+
+      // ✅ Store JWT token
+      localStorage.setItem("token", response.data.access);
+      localStorage.setItem("role", response.data.role);
+      localStorage.setItem("email", response.data.email);
+
+      console.log("Login successful! Token:", response.data.access);
+      alert("Login successful!");
+
+      // ✅ Force a full page reload
+      window.location.href = "/"; 
+
+    } catch (error) {
+      console.error("Login failed:", error);
+      alert("Invalid credentials or API not found!");
+    }
+  }
+}
+
+  };
+  </script>
+  
+  <!-- <script>
   import axios from "axios";
   
   export default {
@@ -47,7 +93,7 @@
       }
     }
   };
-  </script>
+  </script> -->
   
   
   <style scoped>

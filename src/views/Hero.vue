@@ -222,8 +222,12 @@ const fetchClientStats = async () => {
   // Fetch data from the API
   const fetchBankData = async () => {
     try {
-      const response = await axios.get(api_clients + 'interestrate/');
-  
+      const token = localStorage.getItem("token");
+      const response = await axios.get(api_clients + 'interestrate', {
+      headers: {
+        Authorization: `Bearer ${token}`,  // ✅ Include JWT token in the request
+      },
+    });
       // Update chart data with sorted API response
       const banks = response.data;
       console.log(banks)
