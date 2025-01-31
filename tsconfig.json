@@ -13,46 +13,32 @@
       "scripthost"
     ],
     "baseUrl": ".",
-    "module": "ESNext",
-    "moduleResolution": "node",
+    "module": "Node16",
+    "moduleResolution": "node16",   // ✅ Add this to support modern module resolution
     "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "@base/*": [
-        "./src/base/*"
-      ],
-      "@base": [
-        "./src/base"
-      ],
-      "@blog/*": [
-        "./src/@blog/*"
-      ],
-      "@blog": [
-        "./src/@blog"
-      ],
-      "@images/*": [
-        "./src/assets/images/*"
-      ],
-      "@styles/*": [
-        "./src/styles/*"
-      ] 
+      "@/*": ["src/*"],
+      "@base/*": ["./src/base/*"],
+      "@base": ["./src/base"],
+      "@blog/*": ["./src/@blog/*"],
+      "@blog": ["./src/@blog"],
+      "@images/*": ["./src/assets/images/*"],
+      "@styles/*": ["./src/styles/*"]
     },
     "resolveJsonModule": true,
     "types": [
       "node",
       "vite/client",
       "vite-plugin-vue-layouts/client",
-      "unplugin-vue-router/client"
+      "unplugin-vue-router/client"  // ✅ Ensure Vue Router auto-import works
     ],
     "strict": true,
     "strictNullChecks": true,
     "noUnusedLocals": false,
-    "noUnusedParameters": false, 
+    "noUnusedParameters": false,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "skipLibCheck": true
+    "skipLibCheck": true   // ✅ This prevents TS errors for missing types
   },
   "include": [
     "./typed-router.d.ts",
@@ -68,7 +54,6 @@
     "./dist",
     "./node_modules",
     "./vite.config.*"
-
   ],
-  "references": [{ "path": "./tsconfig.node.json" }],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

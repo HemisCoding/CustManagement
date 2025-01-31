@@ -6,7 +6,7 @@
 
 // // Composables
 // // @ts-ignore
-import { createRouter, createWebHistory, RouteLocationNormalized, NavigationGuardNext } from 'vue-router/auto'
+// import { createRouter, createWebHistory, RouteLocationNormalized, NavigationGuardNext } from 'vue-router/auto'
 // import { setupLayouts } from 'virtual:generated-layouts'
 
 // const router = createRouter({
@@ -32,7 +32,7 @@ import { createRouter, createWebHistory, RouteLocationNormalized, NavigationGuar
 //  * Automatic routes for `./src/pages/*.vue`
 //  */
 
-// import { createRouter, createWebHistory, RouteLocationNormalized, NavigationGuardNext } from 'vue-router/auto'
+import { createRouter, createWebHistory, RouteLocationNormalized, NavigationGuardNext } from 'vue-router/auto';
 import { setupLayouts } from 'virtual:generated-layouts';
 
 const router = createRouter({
