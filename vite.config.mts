@@ -21,7 +21,11 @@ export default defineConfig({
     VueRouter({
       dts: 'src/typed-router.d.ts',  // ✅ Auto-generate routes
     }),
-    Pages(), // 🔥 Adaugă vite-plugin-pages pentru generarea automată a rutelor
+    // Pages(), // 🔥 Adaugă vite-plugin-pages pentru generarea automată a rutelor
+    Pages({
+      extensions: ['vue'], // ✅ Se asigură că folosește fișiere `.vue`
+    }),
+
     Layouts(),
     AutoImport({
       imports: [

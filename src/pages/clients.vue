@@ -25,6 +25,106 @@
     </v-row>
 
     <v-row>
+      <!-- Add Client Card -->
+      <v-col cols="12" sm="6" md="3">
+        <v-card class="card-style1 add-client-card" @click="openAddClientDialog">
+          <v-card-title class="text-center">
+            <v-icon size="40">mdi-plus</v-icon>
+          </v-card-title>
+          <v-card-text class="text-center">Adaugă Client</v-card-text>
+        </v-card>
+      </v-col>
+
+<!-- Add Client Dialog -->
+<v-dialog v-model="addClientDialog" persistent max-width="600px">
+  <v-card class="pa-3 custom-dialog">
+    <v-card-title class="headline grey lighten-2 pa-3">
+      Adaugă un Client Nou
+    </v-card-title>
+    <v-divider class="my-3 devider-page"></v-divider>
+
+    <v-card-text>
+      <v-form ref="addClientForm" v-model="valid">
+        <v-text-field v-model="newClient.nume" label="Nume" required></v-text-field>
+        <v-text-field v-model="newClient.prenume" label="Prenume" required></v-text-field>
+        <v-text-field v-model="newClient.cnp" label="CNP" type="number"></v-text-field>
+        <v-text-field v-model="newClient.varsta" label="Vârsta" type="number"></v-text-field>
+        <v-text-field v-model="newClient.zi_nastere" label="Zi Naștere" type="date"></v-text-field>
+
+        <v-select v-model="newClient.stare_civila" label="Stare Civilă" :items="['da', 'nu']"
+          @update:modelValue="checkMaritalStatus"></v-select>
+
+        <v-text-field v-model="newClient.studii_finalizate" label="Studii Finalizate"></v-text-field>
+        <v-text-field v-model="newClient.stare_domiciliu" label="Adresă"></v-text-field>
+        <v-text-field v-model="newClient.cont_salariu_banca" label="Cont Salariu Banca"></v-text-field>
+        <v-text-field v-model="newClient.email" label="Email" required></v-text-field>
+        <v-text-field v-model="newClient.telefon" label="Telefon" type="number"></v-text-field>
+
+        <v-text-field v-model="newClient.angajator" label="Angajator"></v-text-field>
+        <v-text-field v-model="newClient.salariu_net" label="Salariu Net" type="number"></v-text-field>
+        <v-text-field v-model="newClient.data_angajarii" label="Data Angajării" type="date"></v-text-field>
+        <v-text-field v-model="newClient.functia" label="Funcția"></v-text-field>
+
+        <v-text-field v-model="newClient.tip_credit" label="Tip Credit"></v-text-field>
+        <v-text-field v-model="newClient.valoare_aprobata" label="Valoare Aprobata" type="number"></v-text-field>
+        <v-text-field v-model="newClient.data_acordarii" label="Data Acordării" type="date"></v-text-field>
+        <v-text-field v-model="newClient.sold_credit_card" label="Sold Credit Card" type="number"></v-text-field>
+
+        <v-text-field v-model="newClient.data_inregistrat" label="Data Înregistrării" type="date"></v-text-field>
+        <v-select v-model="newClient.etapa_creditare" label="Etapa Creditare"
+          :items="['Initializare Aplicatie', 'Verificare Documente', 'Analiza Financiara', 'Aprobare Credit', 'Acordare Credit']"></v-select>
+        
+        <v-text-field v-model="newClient.notar" label="Notar"></v-text-field>
+        <v-text-field v-model="newClient.data_semnare" label="Data Semnare" type="date"></v-text-field>
+      </v-form>
+    </v-card-text>
+
+    <v-divider class="my-3 devider-page"></v-divider>
+
+    <v-card-actions>
+      <v-btn color="red" text @click="addClientDialog = false">Anulează</v-btn>
+      <v-spacer></v-spacer>
+      <v-btn color="primary" @click="submitNewClient">Adaugă Client</v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
+
+<!-- Dialog pentru completarea partenerului -->
+<v-dialog v-model="partnerDialog" persistent max-width="600px">
+  <v-card class="pa-3 custom-dialog">
+    <v-card-title class="headline grey lighten-2 pa-3">
+      Detalii Partener
+    </v-card-title>
+    <v-divider class="my-3 devider-page"></v-divider>
+
+    <v-card-text>
+      <v-form ref="partnerForm" v-model="valid">
+        <v-text-field v-model="partnerDetails.nume" label="Nume" required></v-text-field>
+        <v-text-field v-model="partnerDetails.prenume" label="Prenume" required></v-text-field>
+        <v-text-field v-model="partnerDetails.cnp" label="CNP" type="number"></v-text-field>
+        <v-text-field v-model="partnerDetails.varsta" label="Vârstă" type="number"></v-text-field>
+        <v-text-field v-model="partnerDetails.zi_nastere" label="Zi Naștere" type="date"></v-text-field>
+        <v-text-field v-model="partnerDetails.telefon" label="Telefon" type="number"></v-text-field>
+        <v-text-field v-model="partnerDetails.email" label="Email"></v-text-field>
+        <v-text-field v-model="partnerDetails.venitLunar" label="Venit Lunar" type="number"></v-text-field>
+        <v-text-field v-model="partnerDetails.studii_finalizate" label="Studii Finalizate"></v-text-field>
+        <v-text-field v-model="partnerDetails.salariu_net" label="Salariu Net" type="number"></v-text-field>
+        <v-text-field v-model="partnerDetails.cont_salariu_banca" label="Cont Salariu Banca"></v-text-field>
+      </v-form>
+    </v-card-text>
+
+    <v-divider class="my-3 devider-page"></v-divider>
+
+    <v-card-actions>
+      <v-btn color="red" text @click="partnerDialog = false">Anulează</v-btn>
+      <v-spacer></v-spacer>
+      <v-btn color="primary" @click="closePartnerDialog">Salvează Partener</v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
+
+
+
       <v-col
         v-for="card in paginatedCards"
         :key="card.id"
@@ -191,6 +291,157 @@
     );
   });
 
+  const addClientDialog = ref(false);
+  const partnerDialog = ref(false);
+  const valid = ref(false);
+
+  const newClient = reactive({
+  nume: "", prenume: "", cnp: null, varsta: null, zi_nastere: "",
+  stare_civila: "", studii_finalizate: "", stare_domiciliu: "",
+  cont_salariu_banca: "", email: "", telefon: null, angajator: "",
+  salariu_net: null, data_angajarii: "", functia: "", tip_credit: "",
+  valoare_aprobata: null, data_acordarii: "", sold_credit_card: null,
+  data_inregistrat: "", etapa_creditare: "", notar: "", data_semnare: "",
+  partener: null
+});
+
+
+    // Obiectul pentru Partener
+  const partnerDetails = reactive({
+    nume: "", prenume: "", cnp: null, varsta: null, zi_nastere: "",
+    telefon: null, email: "", venitLunar: null, studii_finalizate: "",
+    salariu_net: null, cont_salariu_banca: ""
+  });
+
+  // Deschide dialogul pentru partener dacă stare_civila este "Da"
+  const checkMaritalStatus = () => {
+    if (newClient.stare_civila === "da") {
+      partnerDialog.value = true;
+    } else {
+      partnerDialog.value = false;
+    }
+  };
+
+  
+
+  const openAddClientDialog = () => { 
+  addClientDialog.value = true; 
+};
+
+//   const submitNewClient = async () => {
+//   try {
+//     const token = localStorage.getItem("token");
+//     const payload = {
+//       ...newClient,
+//       partener: newClient.stare_civila === "da" ? partnerDetails : null
+//     };
+//     const response = await axios.post(api_url + `customers/`, newClient, {
+//       headers: { Authorization: `Bearer ${token}` },
+//     });
+
+
+//     // Convert the response to match your existing card structure
+//     const addedClient = response.data;
+
+//     const details = {
+//       email: addedClient.email || 'N/A',
+//       telefon: addedClient.telefon || 'N/A',
+//       adresa: addedClient.stare_domiciliu || 'N/A',
+//       venitLunar: addedClient.venitLunar || 'N/A',
+//       creditCurent: addedClient.valoare_credit_actual || 'N/A',
+//       totalCredit: addedClient.valoare_totala_credite || 'N/A',
+//       bonuriMasa: addedClient.bonuri_masa || 'N/A',
+//       cnp: addedClient.cnp || 'N/A',
+//       contSalariuRaiffeisen: addedClient.cont_salariu_raiffeisen || 'N/A',
+//       conturiAlteBanci: addedClient.conturi_alte_banci || 'N/A',
+//       dataInregistrat: addedClient.data_inregistrat || 'N/A',
+//       educatie: addedClient.educatie || 'N/A',
+//       etapaCreditare: addedClient.etapa_creditare || 'N/A',
+//       litigii: addedClient.litigii || 'N/A',
+//       nationalitate: addedClient.nationalitate || 'N/A',
+//       nrCopiiIntretinere: addedClient.nr_copii_intretinere || 'N/A',
+//       nrPersIntretinere: addedClient.nr_pers_intretinere || 'N/A',
+//       stareCivila: addedClient.stare_civila || 'N/A',
+//       varsta: addedClient.varsta || 'N/A',
+//       vechimeAdresa: addedClient.vechime_adresa || 'N/A',
+//     };
+
+//     // Add new client to UI without refreshing
+//     cards.unshift({
+//       id: addedClient.id,
+//       avatar: `https://ui-avatars.com/api/?name=${addedClient.nume}+${addedClient.prenume}&background=random`,
+//       details,
+//       detailsPreview: Object.entries(details).slice(0, 9),
+//       title: `${addedClient.nume} ${addedClient.prenume}`,
+//       dialog: false,
+//     });
+
+//     addClientDialog.value = false;
+//     partnerDialog.value = false;
+
+//   } catch (error) {
+//     console.error("Error adding client:", error);
+//   }
+// };
+const submitNewClient = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const payload = {
+      nume: newClient.nume,
+      prenume: newClient.prenume,
+      cnp: newClient.cnp,
+      varsta: newClient.varsta,
+      zi_nastere: newClient.zi_nastere,
+      stare_civila: newClient.stare_civila,
+      studii_finalizate: newClient.studii_finalizate,
+      stare_domiciliu: newClient.stare_domiciliu,
+      cont_salariu_banca: newClient.cont_salariu_banca,
+      email: newClient.email,
+      telefon: newClient.telefon,
+      angajator: newClient.angajator,
+      salariu_net: newClient.salariu_net,
+      data_angajarii: newClient.data_angajarii,
+      functia: newClient.functia,
+      tip_credit: newClient.tip_credit,
+      valoare_aprobata: newClient.valoare_aprobata,
+      data_acordarii: newClient.data_acordarii,
+      sold_credit_card: newClient.sold_credit_card,
+      data_inregistrat: newClient.data_inregistrat,
+      etapa_creditare: newClient.etapa_creditare,
+      notar: newClient.notar,
+      data_semnare: newClient.data_semnare,
+
+      // Dacă stare_civila este "da", adaugă și partenerul
+      partener: newClient.stare_civila === "da" ? {
+        nume: partnerDetails.nume,
+        prenume: partnerDetails.prenume,
+        cnp: partnerDetails.cnp,
+        varsta: partnerDetails.varsta,
+        zi_nastere: partnerDetails.zi_nastere,
+        telefon: partnerDetails.telefon,
+        email: partnerDetails.email,
+        venitLunar: partnerDetails.venitLunar,
+        studii_finalizate: partnerDetails.studii_finalizate,
+        salariu_net: partnerDetails.salariu_net,
+        cont_salariu_banca: partnerDetails.cont_salariu_banca,
+      } : null
+    };
+
+    // ✅ Afișează payload-ul în consolă pentru debug
+    console.log("🔹 Payload trimis:", payload);
+
+    const response = await axios.post(api_url + `customers/`, payload, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    console.log("✅ Răspuns de la server:", response.data);
+
+  } catch (error) {
+    console.error("❌ Eroare la adăugarea clientului:", error.response?.data || error);
+  }
+};
+
   defineProps({
   currentPhase: String, // Current phase name
 });
@@ -240,8 +491,6 @@ const getPhaseColor = (etapaCreditare) => {
     card.dialog = false;
   }
 
-  const partnerDialog = ref(false);
-
   function openPartnerDialog() {
     partnerDialog.value = true;
   }
@@ -271,57 +520,133 @@ const getPhaseColor = (etapaCreditare) => {
   }
 
   const fetchCustomers = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(api_url + `customers/`, {
-      headers: {
-        Authorization: `Bearer ${token}`,  // ✅ Include JWT token in the request
-      },
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(api_url + `customers/`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-      const customers = response.data;
-      
-      console.log('customers', customers);
 
-      const customersData = customers.map((customer) => {
+    const customers = response.data;
+    
+    const customersData = customers.map((customer) => {
       const details = {
-        email: customer.email || 'N/A',
-        telefon: customer.telefon || 'N/A',
-        adresa: customer.stare_domiciliu || 'N/A',
-        venitLunar: customer.venitLunar || 'N/A',
-        creditCurent: customer.valoare_credit_actual || 'N/A',
-        totalCredit: customer.valoare_totala_credite || 'N/A',
-        bonuriMasa: customer.bonuri_masa || 'N/A',
-        cnp: customer.cnp || 'N/A',
-        contSalariuRaiffeisen: customer.cont_salariu_raiffeisen || 'N/A',
-        conturiAlteBanci: customer.conturi_alte_banci || 'N/A',
-        dataInregistrat: customer.data_inregistrat || 'N/A',
-        educatie: customer.educatie || 'N/A',
-        etapaCreditare: customer.etapa_creditare || 'N/A',
-        litigii: customer.litigii || 'N/A',
-        nationalitate: customer.nationalitate || 'N/A',
-        nrCopiiIntretinere: customer.nr_copii_intretinere || 'N/A',
-        nrPersIntretinere: customer.nr_pers_intretinere || 'N/A',
-        stareCivila: customer.stare_civila || 'N/A',
-        varsta: customer.varsta || 'N/A',
-        vechimeAdresa: customer.vechime_adresa || 'N/A',
+        nume: customer.nume || "N/A",
+        prenume: customer.prenume || "N/A",
+        cnp: customer.cnp || "N/A",
+        varsta: customer.varsta || "N/A",
+        ziNastere: customer.zi_nastere || "N/A",
+        stareCivila: customer.stare_civila || "N/A",
+        studiiFinalizate: customer.studii_finalizate || "N/A",
+        stareDomiciliu: customer.stare_domiciliu || "N/A",
+        contSalariuBanca: customer.cont_salariu_banca || "N/A",
+        email: customer.email || "N/A",
+        telefon: customer.telefon || "N/A",
+        angajator: customer.angajator || "N/A",
+        salariuNet: customer.salariu_net || "N/A",
+        dataAngajarii: customer.data_angajarii || "N/A",
+        functia: customer.functia || "N/A",
+        tipCredit: customer.tip_credit || "N/A",
+        valoareAprobata: customer.valoare_aprobata || "N/A",
+        dataAcordarii: customer.data_acordarii || "N/A",
+        soldCreditCard: customer.sold_credit_card || "N/A",
+        dataInregistrat: customer.data_inregistrat || "N/A",
+        etapaCreditare: customer.etapa_creditare || "N/A",
+        notar: customer.notar || "N/A",
+        dataSemnare: customer.data_semnare || "N/A",
+
+        // Partener (dacă există)
+        partener: customer.partener ? {
+          nume: customer.partener.nume || "N/A",
+          prenume: customer.partener.prenume || "N/A",
+          cnp: customer.partener.cnp || "N/A",
+          varsta: customer.partener.varsta || "N/A",
+          ziNastere: customer.partener.zi_nastere || "N/A",
+          telefon: customer.partener.telefon || "N/A",
+          email: customer.partener.email || "N/A",
+          venitLunar: customer.partener.venitLunar || "N/A",
+          studiiFinalizate: customer.partener.studii_finalizate || "N/A",
+          salariuNet: customer.partener.salariu_net || "N/A",
+          contSalariuBanca: customer.partener.cont_salariu_banca || "N/A",
+        } : null
       };
 
       return {
         id: customer.id,
-        avatar: `https://ui-avatars.com/api/?name=${customer.nume || 'N/A'}+${customer.prenume || 'N/A'}&background=random`,
+        avatar: `https://ui-avatars.com/api/?name=${customer.nume}+${customer.prenume}&background=random`,
         details,
-        detailsPreview: Object.entries(details).slice(0, 9), // Primele 7 câmpuri
+        detailsPreview: Object.entries(details).slice(0, 9),
         title: `${customer.nume} ${customer.prenume}`,
         dialog: false,
       };
     });
-        // Populează array-ul `cards`
-        cards.splice(0, cards.length, ...customersData);
 
-    } catch (error) {
+    cards.splice(0, cards.length, ...customersData);
+  } catch (error) {
     console.error("Error fetching customers:", error);
   }
-  };
+};
+
+
+  // const fetchCustomers = async () => {
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     const response = await axios.get(api_url + `customers/`, {
+  //     headers: {
+  //       Authorization: `Bearer ${token}`,  // ✅ Include JWT token in the request
+  //     },
+  //   });
+  //     const customers = response.data;
+      
+  //     console.log('customers', customers);
+
+  //     const customersData = customers.map((customer) => {
+  //     const details = {
+  //       nume: customer.nume || "N/A",
+  //       prenume: customer.prenume || "N/A",
+  //       cnp: customer.cnp || "N/A",
+  //       varsta: customer.varsta || "N/A",
+  //       ziNastere: customer.zi_nastere || "N/A",
+  //       stareCivila: customer.stare_civila || "N/A",
+  //       partener: customer.partener || "N/A",
+
+  //       studiiFinalizate: customer.studii_finalizate || "N/A",
+  //       stareDomiciliu: customer.stare_domiciliu || "N/A",
+  //       contSalariuBanca: customer.cont_salariu_banca || "N/A",
+  //       email: customer.email || "N/A",
+  //       telefon: customer.telefon || "N/A",
+
+  //       angajator: customer.angajator || "N/A",
+  //       salariuNet: customer.salariu_net || "N/A",
+  //       dataAngajarii: customer.data_angajarii || "N/A",
+  //       functia: customer.functia || "N/A",
+
+  //       tipCredit: customer.tip_credit || "N/A",
+  //       valoareAprobata: customer.valoare_aprobata || "N/A",
+  //       dataAcordarii: customer.data_acordarii || "N/A",
+  //       soldCreditCard: customer.sold_credit_card || "N/A",
+
+  //       dataInregistrat: customer.data_inregistrat || "N/A",
+  //       etapaCreditare: customer.etapa_creditare || "N/A",
+  //       notar: customer.notar || "N/A",
+  //       dataSemnare: customer.data_semnare || "N/A",
+  //     };
+
+  //     return {
+  //       id: customer.id,
+  //       avatar: `https://ui-avatars.com/api/?name=${customer.nume || 'N/A'}+${customer.prenume || 'N/A'}&background=random`,
+  //       details,
+  //       detailsPreview: Object.entries(details).slice(0, 9), // Primele 7 câmpuri
+  //       title: `${customer.nume} ${customer.prenume}`,
+  //       dialog: false,
+  //     };
+  //   });
+  //       // Populează array-ul `cards`
+  //       cards.splice(0, cards.length, ...customersData);
+
+  //   } catch (error) {
+  //   console.error("Error fetching customers:", error);
+  // }
+  // };
 
   // Get Client Docs from S3
 const getClientDocs = () => {

@@ -14,8 +14,11 @@ const routes = setupLayouts(generatedRoutes); // ✅ Correct layout setup
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL), // ✅ Use import.meta.env.BASE_URL
   routes,
+  // scrollBehavior() {
+  //   return { x: 0, y: 0 };
+  // }
   scrollBehavior() {
-    return { x: 0, y: 0 };
+    return { left: 0, top: 0 }; // ✅ Înlocuiește `x` și `y` cu `left` și `top`
   }
 });
 

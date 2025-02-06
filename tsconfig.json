@@ -13,8 +13,10 @@
       "scripthost"
     ],
     "baseUrl": ".",
-    "module": "Node16",
-    "moduleResolution": "node16",   // ✅ Add this to support modern module resolution
+    // "module": "Node16",
+    "module": "ESNext", 
+    // "moduleResolution": "node16",   // ✅ Add this to support modern module resolution
+    "moduleResolution": "Node",
     "paths": {
       "@/*": ["src/*"],
       "@base/*": ["./src/base/*"],
@@ -29,7 +31,9 @@
       "node",
       "vite/client",
       "vite-plugin-vue-layouts/client",
-      "unplugin-vue-router/client"  // ✅ Ensure Vue Router auto-import works
+      "unplugin-vue-router/client",  // ✅ Ensure Vue Router auto-import works
+      "vite-plugin-pages",
+      "vite-plugin-pages/client"
     ],
     "strict": true,
     "strictNullChecks": true,
