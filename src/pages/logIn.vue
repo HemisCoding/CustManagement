@@ -28,12 +28,14 @@
       return {
         email: "",
         password: "",
+        api_login: import.meta.env.VITE_LOGIN_HOST,
+
       };
     },
     methods: {
   async login() {
     try {
-      const response = await axios.post("http://127.0.0.1:8000/login/", {
+      const response = await axios.post(this.api_login, {
         email: this.email,
         password: this.password,
       });
@@ -42,8 +44,7 @@
       localStorage.setItem("token", response.data.access);
       localStorage.setItem("role", response.data.role);
       localStorage.setItem("email", response.data.email);
-
-      console.log("Login successful! Token:", response.data.access);
+      
       alert("Login successful!");
 
       // ✅ Force a full page reload
