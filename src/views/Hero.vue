@@ -61,12 +61,12 @@
           
           <!-- Detalii utilizator -->
           <div class="account-card">
-            <div class="font-weight-medium">Nume Utilizator</div>
-            <div class="text-caption">Rol: Manager Clienti</div>
+            <div class="font-weight-medium">{{ userProfile.name || 'Nume Utilizator' }}</div>
+            <div class="text-caption">Rol: {{ userProfile.role || 'Manager Clienti' }}</div>
             <div class="text-caption">Status: Activ</div>
-            <div class="text-caption">Nr. Clienti: 120</div>
-            <div class="text-caption">Clienti in progres: 15</div>
-            <div class="text-caption">Clienti inchisi 28 zile: 10</div>
+            <div class="text-caption">Nr. Clienți: {{ userProfile.totalClients || 0 }}</div>
+            <div class="text-caption">Clienti în progres: {{ userProfile.clientsInProgress || 0 }}</div>
+            <div class="text-caption">Clienti închisi 28 zile: {{ userProfile.clientsClosed || 0 }}</div>
 
             <!-- Progress bar -->
             <v-progress-linear
@@ -194,6 +194,15 @@ const completedApplications = ref(0);
 const totalCreditSum = ref(0);
 const minimumInterestRate = ref(null);
 
+// User profile data
+const userProfile = ref({
+  name: "",
+  role: "",
+  totalClients: 0,
+  clientsInProgress: 0,
+  clientsClosed: 0,
+  progress: 0,
+});
 
 const formatNumber = (value) => {
   return new Intl.NumberFormat('ro-RO', { maximumFractionDigits: 0 }).format(value);
@@ -218,6 +227,54 @@ const fetchClientStats = async () => {
     console.error("Error fetching client statistics:", error);
   }
 };
+
+// Fetch User Profile
+const fetchClientProfile = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const userEmail = localStorage.getItem("email");
+
+    if (!token || !userEmail) {
+      console.error("No authentication token or email found.");
+      return;
+    }
+
+    console.log("Fetching user profile from:", `${api_clients}users/`);
+    console.log("Looking for email:", userEmail);
+
+    const response = await axios.get(`${api_clients}users/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("User profile response:", response.data);
+
+    // ✅ Convert both emails to lowercase to fix case-sensitivity issues
+    const user = response.data.find(u => u.email.toLowerCase() === userEmail.toLowerCase());
+
+    if (user) {
+      userProfile.value = {
+        name: user.first_name || "Nume Utilizator",
+        email: user.email,
+        phone: user.phone || "N/A",
+        role: user.role || "Manager Clienti",
+        totalClients: user.total_clients || 0,
+        clientsInProgress: user.clients_in_progress || 0,
+        clientsClosed: user.clients_closed || 0,
+        progress: user.progress || 0,
+      };
+      console.log("User details loaded:", userProfile.value);
+    } else {
+      console.error("Logged-in user not found in user list.");
+      console.log("API returned these users:", response.data);
+    }
+
+  } catch (error) {
+    console.error("Error fetching user profile:", error.response ? error.response.data : error.message);
+  }
+};
+
 
   // Fetch data from the API
   const fetchBankData = async () => {
@@ -244,6 +301,7 @@ const fetchClientStats = async () => {
 onMounted(() => {
   fetchClientStats();
   fetchBankData();
+  fetchClientProfile();
 });
 </script>
 

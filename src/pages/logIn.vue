@@ -44,8 +44,10 @@
       localStorage.setItem("token", response.data.access);
       localStorage.setItem("role", response.data.role);
       localStorage.setItem("email", response.data.email);
-      
+
       alert("Login successful!");
+      this.loadUser(); // Reload user info after login
+
 
       // ✅ Force a full page reload
       window.location.href = "/"; 
@@ -54,47 +56,27 @@
       console.error("Login failed:", error);
       alert("Invalid credentials or API not found!");
     }
-  }
+  },
+  loadUser () {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      console.log('stored', storedUser)
+      if (storedUser) {
+        user.value = {
+          name: storedUser.name || "Nume Utilizator",
+          role: storedUser.role || "Manager Clienti",
+          
+        };
+        isAuthenticated.value = true;
+        console.log('name')
+
+      }
+    },
+
 }
+
 
   };
   </script>
-  
-  <!-- <script>
-  import axios from "axios";
-  
-  export default {
-    data() {
-      return {
-        email: "",
-        password: "",
-      };
-    },
-    methods: {
-      async login() {
-        try {
-          const response = await axios.post("http://127.0.0.1:8000/login/", {
-            email: this.email,
-            password: this.password,
-          });
-  
-          // ✅ Store JWT token in localStorage
-          localStorage.setItem("token", response.data.access);
-          localStorage.setItem("role", response.data.role);
-          localStorage.setItem("email", response.data.email);
-  
-          console.log("Login successful! Token:", response.data.access);
-          alert("Login successful!");
-  
-          this.$router.push("/"); // ✅ Redirect to home page after login
-        } catch (error) {
-          console.error("Login failed:", error);
-          alert("Invalid credentials or API not found!");
-        }
-      }
-    }
-  };
-  </script> -->
   
   
   <style scoped>
@@ -111,7 +93,7 @@
     border: 1px solid rgba(0, 0, 0, 0.2);
     height: fit-content;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    width: 20vw;
+    width: 20rem;
   }
   
   .card-style1:hover {

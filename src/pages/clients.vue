@@ -388,45 +388,47 @@ const submitNewClient = async () => {
     const token = localStorage.getItem("token");
 
     const payload = {
-      nume: newClient.nume,
-      prenume: newClient.prenume,
-      cnp: newClient.cnp,
-      varsta: newClient.varsta,
-      zi_nastere: newClient.zi_nastere,
-      stare_civila: newClient.stare_civila,
-      studii_finalizate: newClient.studii_finalizate,
-      stare_domiciliu: newClient.stare_domiciliu,
-      cont_salariu_banca: newClient.cont_salariu_banca,
-      email: newClient.email,
-      telefon: newClient.telefon,
-      angajator: newClient.angajator,
-      salariu_net: newClient.salariu_net,
-      data_angajarii: newClient.data_angajarii,
-      functia: newClient.functia,
-      tip_credit: newClient.tip_credit,
-      valoare_aprobata: newClient.valoare_aprobata,
-      data_acordarii: newClient.data_acordarii,
-      sold_credit_card: newClient.sold_credit_card,
-      data_inregistrat: newClient.data_inregistrat,
-      etapa_creditare: newClient.etapa_creditare,
-      notar: newClient.notar,
-      data_semnare: newClient.data_semnare,
+  nume: newClient.nume,
+  prenume: newClient.prenume,
+  cnp: newClient.cnp,
+  varsta: newClient.varsta,
+  zi_nastere: newClient.zi_nastere,
+  stare_civila: newClient.stare_civila,
+  studii_finalizate: newClient.studii_finalizate,
+  stare_domiciliu: newClient.stare_domiciliu,
+  cont_salariu_banca: newClient.cont_salariu_banca,
+  email: newClient.email,
+  telefon: newClient.telefon,
+  angajator: newClient.angajator,
+  salariu_net: newClient.salariu_net,
+  data_angajarii: newClient.data_angajarii,
+  functia: newClient.functia,
+  tip_credit: newClient.tip_credit,
+  valoare_aprobata: newClient.valoare_aprobata,
+  data_acordarii: newClient.data_acordarii,
+  sold_credit_card: newClient.sold_credit_card,
+  data_inregistrat: newClient.data_inregistrat,
+  etapa_creditare: newClient.etapa_creditare,
+  notar: newClient.notar,
+  data_semnare: newClient.data_semnare,
+};
 
-      // Dacă stare_civila este "da", adaugă și partenerul
-      partener: newClient.stare_civila === "da" ? {
-        nume: partnerDetails.nume,
-        prenume: partnerDetails.prenume,
-        cnp: partnerDetails.cnp,
-        varsta: partnerDetails.varsta,
-        zi_nastere: partnerDetails.zi_nastere,
-        telefon: partnerDetails.telefon,
-        email: partnerDetails.email,
-        venitLunar: partnerDetails.venitLunar,
-        studii_finalizate: partnerDetails.studii_finalizate,
-        salariu_net: partnerDetails.salariu_net,
-        cont_salariu_banca: partnerDetails.cont_salariu_banca,
-      } : null
-    };
+// Nu adăugăm partener dacă este null
+if (newClient.stare_civila === "da") {
+  payload.partener = {
+    nume: partnerDetails.nume,
+    prenume: partnerDetails.prenume,
+    cnp: partnerDetails.cnp,
+    varsta: partnerDetails.varsta,
+    zi_nastere: partnerDetails.zi_nastere,
+    telefon: partnerDetails.telefon,
+    email: partnerDetails.email,
+    venitLunar: partnerDetails.venitLunar,
+    studii_finalizate: partnerDetails.studii_finalizate,
+    salariu_net: partnerDetails.salariu_net,
+    cont_salariu_banca: partnerDetails.cont_salariu_banca,
+  };
+}
 
     // ✅ Afișează payload-ul în consolă pentru debug
     console.log("🔹 Payload trimis:", payload);
@@ -746,7 +748,4 @@ const getClientDocs = () => {
   font-weight: bold;
   text-align: center;
 }
-
-
   </style>
-  
