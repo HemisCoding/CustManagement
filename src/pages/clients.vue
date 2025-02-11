@@ -38,12 +38,12 @@
 <!-- Add Client Dialog -->
 <v-dialog v-model="addClientDialog" persistent max-width="600px">
   <v-card class="pa-3 custom-dialog">
-    <v-card-title class="headline grey lighten-2 pa-3">
+    <v-card-title class="headline grey lighten-2 pa-3 text-white">
       Adaugă un Client Nou
     </v-card-title>
     <v-divider class="my-3 devider-page"></v-divider>
 
-    <v-card-text>
+    <v-card-text class="text-white">
       <v-form ref="addClientForm" v-model="valid">
         <v-text-field v-model="newClient.nume" label="Nume" required></v-text-field>
         <v-text-field v-model="newClient.prenume" label="Prenume" required></v-text-field>
@@ -92,12 +92,12 @@
 <!-- Dialog pentru completarea partenerului -->
 <v-dialog v-model="partnerDialog" persistent max-width="600px">
   <v-card class="pa-3 custom-dialog">
-    <v-card-title class="headline grey lighten-2 pa-3">
+    <v-card-title class="headline grey lighten-2 pa-3 text-white">
       Detalii Partener
     </v-card-title>
     <v-divider class="my-3 devider-page"></v-divider>
 
-    <v-card-text>
+    <v-card-text class="text-white">
       <v-form ref="partnerForm" v-model="valid">
         <v-text-field v-model="partnerDetails.nume" label="Nume" required></v-text-field>
         <v-text-field v-model="partnerDetails.prenume" label="Prenume" required></v-text-field>
@@ -182,86 +182,97 @@
         </v-card>
 
         <!-- Dialog -->
-        <v-dialog v-model="card.dialog" persistent max-width="800px">
-          <v-card class="pa-3 custom-dialog">
-            <!-- Titlu și linia separatoare -->
-            <v-card-title class="headline grey lighten-2 pa-3">
-              Fișa Client: {{ card.title }}
-            </v-card-title>
-            <v-divider class="my-3 devider-page"></v-divider>
+      <!-- Dialog pentru detaliile clientului -->
+<v-dialog v-model="card.dialog" persistent max-width="800px">
+  <v-card class="pa-3 custom-dialog">
+    <!-- Titlu și linia separatoare -->
+    <v-card-title class="headline grey lighten-2 pa-3 text-white">
+      Fișa Client: {{ card.title }}
+    </v-card-title>
+    <v-divider class="my-3 devider-page"></v-divider>
 
-            <!-- Datele clientului organizate în stânga și dreapta -->
-            <v-card-text>
-              <v-row>
-                <!-- Prima coloană cu primele 10 proprietăți -->
-                <v-col cols="6">
-                  <div v-for="([key, value], index) in Object.entries(card.details).slice(0, 10)" :key="index">
-                    <strong>{{ String(key).replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()) }}:</strong> {{ value }}
-                  </div>
-                </v-col>
+    <!-- Formularul cu datele clientului -->
+    <v-card-text>
+      <v-form ref="clientDetailsForm" v-model="valid">
+        <v-row>
+          <!-- Prima coloană cu primele 10 proprietăți ale clientului -->
+          <v-col cols="6" v-for="([key, value], index) in Object.entries(card.details).slice(0, 10)" :key="index">
+            <v-text-field
+              :value="value"
+              :label="key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())"
+              solo
+              dense
+              outlined
+              class="text-left text-white"
+              filled
+              readonly
+              persistent-hint
+            ></v-text-field>
+          </v-col>
 
-                <!-- A doua coloană cu restul proprietăților -->
-                <v-col cols="6">
-                  <div v-for="([key, value], index) in Object.entries(card.details).slice(10)" :key="index">
-                    <strong>{{ String(key).replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()) }}:</strong> {{ value }}
-                  </div>
-                </v-col>
-              </v-row>
-            </v-card-text>
+          <!-- A doua coloană cu restul proprietăților -->
+          <v-col cols="6" v-for="([key, value], index) in Object.entries(card.details).slice(10)" :key="index">
+            <v-text-field
+              :value="value"
+              :label="key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())"
+              solo
+              dense
+              outlined
+              class="text-left text-white"
+            ></v-text-field>
+          </v-col>
+        </v-row>
 
-            <v-divider class="my-3 devider-page"></v-divider>
+        <!-- 🔹 SECTIUNEA PENTRU PARTENER - Apare doar dacă există un partener -->
+        <template v-if="card.details.partener">
+          <v-divider class="my-4 devider-page"></v-divider>
+          <v-col cols="12">
+            <h3 class="text-h6 font-weight-bold text-white">Partener</h3>
+          </v-col>
 
-            <v-row align="center">
-              <!-- Primul buton -->
-              <v-col cols="12" md="3">
-                <v-card-actions>
-                  <v-btn
-                  class="docs"
-                  color="primary"
-                  :href="getClientDocs()"
-                  text @click="">
-                    Documente Client
-                  </v-btn>
-              </v-card-actions>
-              </v-col>
+          <v-row>
+            <v-col cols="6" v-for="([key, value], index) in Object.entries(card.details.partener)" :key="'partener-' + index">
+              <v-text-field
+                :value="value"
+                :label="key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())"
+                solo
+                dense
+                outlined
+                class="text-left text-white"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+        </template>
+      </v-form>
+    </v-card-text>
 
-              <!-- Al doilea buton -->
-              <v-col cols="12" md="3">
-                <v-btn
-                  v-if="card.details.stareCivila === 'da'"
-                  color="primary"
-                  text
-                  @click="openPartnerDialog"
-                >
-                  Vezi profil partener
-                </v-btn>
-              </v-col>
+    <v-divider class="my-3 devider-page"></v-divider>
 
-              <!-- Buton de închidere -->
-              <v-col cols="12" md="6" class="text-end">
-                <v-btn color="red" text @click="closeDialog(card)">
-                  Închide
-                </v-btn>
-              </v-col>
-            </v-row>
-          </v-card>
-            <!-- Dialog pentru profilul partenerului -->
-          <v-dialog v-model="partnerDialog" persistent max-width="600px">
-            <v-card class="pa-3 custom-dialog">
-              <v-card-title class="headline grey lighten-2 pa-3">
-                Profil Partener
-              </v-card-title>
-              <v-divider class="my-3 devider-page"></v-divider>
-              <v-card-text>
-                <p>Momentan nu există date pentru partener.</p>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="red" text @click="closePartnerDialog">Închide</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-        </v-dialog>
+    <v-row align="center">
+      <!-- Buton pentru documentele clientului -->
+      <v-col cols="12" md="3">
+        <v-card-actions>
+          <v-btn
+            class="docs"
+            color="primary"
+            :href="getClientDocs()"
+            text
+          >
+            Documente Client
+          </v-btn>
+        </v-card-actions>
+      </v-col>
+
+      <!-- Buton de închidere -->
+      <v-col cols="12" md="9" class="text-end">
+        <v-btn color="red" text @click="closeDialog(card)">
+          Închide
+        </v-btn>
+      </v-col>
+    </v-row>
+  </v-card>
+</v-dialog>
+
       </v-col>
     </v-row>
     <v-pagination
@@ -387,10 +398,8 @@ const submitNewClient = async () => {
           prenume: partnerDetails.prenume,
           cnp: partnerDetails.cnp,
           varsta: partnerDetails.varsta,
-          zi_nastere: partnerDetails.zi_nastere ? new Date(partnerDetails.zi_nastere).toISOString() : null,
           telefon: partnerDetails.telefon,
           email: partnerDetails.email,
-          venitLunar: partnerDetails.venitLunar,
           studii_finalizate: partnerDetails.studii_finalizate,
           salariu_net: partnerDetails.salariu_net,
           cont_salariu_banca: partnerDetails.cont_salariu_banca,
@@ -512,10 +521,8 @@ const getPhaseColor = (etapaCreditare) => {
           prenume: customer.partener.prenume || "N/A",
           cnp: customer.partener.cnp || "N/A",
           varsta: customer.partener.varsta || "N/A",
-          ziNastere: customer.partener.zi_nastere || "N/A",
           telefon: customer.partener.telefon || "N/A",
           email: customer.partener.email || "N/A",
-          venitLunar: customer.partener.venitLunar || "N/A",
           studiiFinalizate: customer.partener.studii_finalizate || "N/A",
           salariuNet: customer.partener.salariu_net || "N/A",
           contSalariuBanca: customer.partener.cont_salariu_banca || "N/A",
