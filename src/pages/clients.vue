@@ -328,6 +328,22 @@
   addClientDialog.value = true; 
 };
 
+function openDialog(card) {
+    card.dialog = true;
+  }
+  
+  function closeDialog(card) {
+    card.dialog = false;
+  }
+
+  function openPartnerDialog() {
+    partnerDialog.value = true;
+  }
+
+  function closePartnerDialog() {
+    partnerDialog.value = false;
+  }
+
 const submitNewClient = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -387,6 +403,8 @@ const submitNewClient = async () => {
       const response = await axios.post(api_url + `customers/`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
+      addClientDialog.value = false;
   
       console.log("✅ Răspuns de la server:", response.data);
   
@@ -432,23 +450,6 @@ const getPhaseColor = (etapaCreditare) => {
   return phase ? phase.color : "grey"; // Default to grey if not found
 };
 
-
-  
-  function openDialog(card) {
-    card.dialog = true;
-  }
-  
-  function closeDialog(card) {
-    card.dialog = false;
-  }
-
-  function openPartnerDialog() {
-    partnerDialog.value = true;
-  }
-
-  function closePartnerDialog() {
-    partnerDialog.value = false;
-  }
 
   const currentPage = ref(1);
   const pageSize = ref(20)
