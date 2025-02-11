@@ -57,7 +57,7 @@
         <v-text-field v-model="newClient.studii_finalizate" label="Studii Finalizate"></v-text-field>
         <v-text-field v-model="newClient.stare_domiciliu" label="Adresă"></v-text-field>
         <v-text-field v-model="newClient.cont_salariu_banca" label="Cont Salariu Banca"></v-text-field>
-        <v-text-field v-model="newClient.email" label="Email" required></v-text-field>
+        <v-text-field v-model="newClient.email" label="Email"></v-text-field>
         <v-text-field v-model="newClient.telefon" label="Telefon" type="number"></v-text-field>
 
         <v-text-field v-model="newClient.angajator" label="Angajator"></v-text-field>
@@ -360,7 +360,7 @@ const submitNewClient = async () => {
       const token = localStorage.getItem("token");
 
       // Validare: asigură-te că câmpurile obligatorii sunt completate
-      if (!newClient.nume || !newClient.prenume || !newClient.email) {
+      if (!newClient.nume || !newClient.prenume) {
         alert("Te rugăm să completezi câmpurile obligatorii.");
         return;
       }
