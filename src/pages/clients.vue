@@ -195,28 +195,11 @@
     <v-card-text>
       <v-form ref="clientDetailsForm" v-model="valid">
         <v-row>
-          <!-- Prima coloană cu primele 10 proprietăți ale clientului -->
-          <v-col cols="6" v-for="([key, value], index) in Object.entries(card.details).slice(0, 10)" :key="index">
+          <v-col cols="6" v-for="([key, value], index) in Object.entries(card.details)" :key="index">
             <v-text-field
-              :value="value"
+              v-model="card.details[key]"
               :label="key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())"
-              solo
-              dense
-              outlined
-              class="text-left text-white"
-              filled
-              readonly
-              persistent-hint
-            ></v-text-field>
-          </v-col>
-
-          <!-- A doua coloană cu restul proprietăților -->
-          <v-col cols="6" v-for="([key, value], index) in Object.entries(card.details).slice(10)" :key="index">
-            <v-text-field
-              :value="value"
-              :label="key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())"
-              solo
-              dense
+              variant="filled"
               outlined
               class="text-left text-white"
             ></v-text-field>
@@ -233,10 +216,9 @@
           <v-row>
             <v-col cols="6" v-for="([key, value], index) in Object.entries(card.details.partener)" :key="'partener-' + index">
               <v-text-field
-                :value="value"
+                v-model="card.details.partener[key]"
                 :label="key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())"
-                solo
-                dense
+                variant="filled"
                 outlined
                 class="text-left text-white"
               ></v-text-field>
@@ -262,9 +244,12 @@
           </v-btn>
         </v-card-actions>
       </v-col>
-
+<!-- Buton pentru salvare -->
+  <v-col cols="12" md="6" class="text-right">
+    <v-btn color="green" @click="updateClientDetails(card)">Salvează Modificările</v-btn>
+  </v-col>
       <!-- Buton de închidere -->
-      <v-col cols="12" md="9" class="text-end">
+      <v-col cols="12" md="3" class="text-end">
         <v-btn color="red" text @click="closeDialog(card)">
           Închide
         </v-btn>
@@ -424,6 +409,58 @@ const submitNewClient = async () => {
       alert("A apărut o eroare la adăugarea clientului. Te rugăm să încerci din nou.");
     }
   };
+
+
+  const updateClientDetails = async (card) => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Token-ul de autentificare lipsește. Reautentifică-te.");
+      return;
+    }
+
+    const cleanData = (data) => {
+      const cleaned = { ...data };
+      for (const key in cleaned) {
+        if (cleaned[key] === "N/A" || cleaned[key] === "") {
+          cleaned[key] = null; // Evităm să trimitem "N/A" sau string gol
+        }
+        if (["cnp", "varsta", "telefon", "salariuNet", "soldCreditCard", "valoareAprobata"].includes(key)) {
+          cleaned[key] = cleaned[key] ? Number(cleaned[key]) : null; // Convertim în număr dacă e cazul
+        }
+        if (key.includes("data") && cleaned[key]) {
+          cleaned[key] = new Date(cleaned[key]).toISOString().split("T")[0]; // Convertim la YYYY-MM-DD
+        }
+      }
+      return cleaned;
+    };
+
+    // 🔹 Construim payload-ul fără `partener` dacă stare_civila este "nu"
+    const payload = cleanData(card.details);
+
+    if (card.details.stareCivila === "da" && card.details.partener) {
+      payload.partener = cleanData(card.details.partener);
+    } else {
+      delete payload.partener; // Eliminăm complet `partener` din payload dacă nu există
+    }
+
+    console.log("📤 Trimitem update la server:", payload);
+
+    const response = await axios.put(`${api_url}customers/${card.id}/`, payload, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    console.log("✅ Client actualizat cu succes:", response.data);
+    alert("Modificările au fost salvate cu succes!");
+
+    await fetchCustomers();
+    card.dialog = false;
+
+  } catch (error) {
+    console.error("❌ Eroare la actualizare:", error.response?.data || error);
+    alert(`A apărut o eroare: ${error.response?.data?.message || "Verifică datele și încearcă din nou."}`);
+  }
+};
 
 
   defineProps({
