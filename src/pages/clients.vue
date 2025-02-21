@@ -119,15 +119,17 @@
   <template #item="{ item, index }">
     <tr>
       <td>
-        <v-text-field
+        <v-select
           v-model="item.tip_credit"
-          placeholder="Tip Credit"
+          :items="['Ipotecar', 'NP', 'OVD', 'CC']"
+          label="Tip Credit"
+          placeholder="Selectează Tip Credit"
           dense
           hide-details
           solo-inverted
           style="width: 120%;"
-
-        ></v-text-field>
+          :return-object="false"
+        ></v-select>
       </td>
       <td>
         <v-text-field
