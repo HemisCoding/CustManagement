@@ -74,9 +74,8 @@
         </v-btn>
 
         <v-text-field v-model="newClient.data_inregistrat" label="Data Înregistrării" type="date"></v-text-field>
-        <v-select v-model="newClient.etapa_creditare" label="Etapa Creditare"
-          :items="['Initializare Aplicatie', 'Verificare Documente', 'Analiza Financiara', 'Aprobare Credit', 'Acordare Credit']"></v-select>
-        
+        <v-select v-model="newClient.etapa_creditare" :items="etapaCreditareOptions" label="Etapa Creditare" class="text-white"></v-select>
+
         <v-text-field v-model="newClient.notar" label="Notar"></v-text-field>
         <v-text-field v-model="newClient.data_semnare" label="Data Semnare" type="date"></v-text-field>
       </v-form>
@@ -297,13 +296,19 @@
       <v-form ref="clientDetailsForm" v-model="valid">
         <v-row>
           <v-col cols="6" v-for="([key, value], index) in Object.entries(card.details)" :key="index">
-            <v-text-field
-              v-model="card.details[key]"
-              :label="key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())"
-              variant="filled"
-              outlined
-              class="text-left text-white"
-            ></v-text-field>
+            <template v-if="key === 'etapaCreditare'">
+            <v-select v-model="card.details.etapaCreditare" :items="etapaCreditareOptions" label="Etapa Creditare" class="text-white"></v-select>
+            </template>
+            <!-- Altfel afișăm v-text-field normal -->
+            <template v-else>
+              <v-text-field
+                v-model="card.details[key]"
+                :label="key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())"
+                variant="filled"
+                outlined
+                class="text-left text-white"
+              ></v-text-field>
+            </template>
           </v-col>
         </v-row>
 
@@ -437,6 +442,9 @@
   { text: "Data Acordare", value: "data_acordare" },
   { text: "Rata (%)", value: "rata" }
 ];
+
+  // script setup
+const etapaCreditareOptions = ['Initializare Aplicatie', 'Verificare Documente', 'Analiza Financiara', 'Aprobare Credit', 'Acordare Credit'];
 
   const newClient = reactive({
   nume: "", prenume: "", cnp: null, varsta: null, zi_nastere: "",
@@ -611,6 +619,10 @@ const submitNewClient = async () => {
 
     // 🔹 Construim payload-ul fără `partener` dacă stare_civila este "nu"
     const payload = cleanData(card.details);
+    // Asigură-te că etapa_creditare este trimisă corect
+    payload.etapa_creditare = card.details.etapaCreditare;
+    delete payload.etapaCreditare;
+
 
     if (card.details.stareCivila === "da" && card.details.partener) {
       payload.partener = cleanData(card.details.partener);
@@ -877,8 +889,5 @@ const getClientDocs = () => {
   font-weight: bold !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
-
-
-
   </style>
 
