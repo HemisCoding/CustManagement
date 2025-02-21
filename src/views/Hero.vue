@@ -301,7 +301,7 @@ const formatBirthday = (date) => {
   const fetchBankData = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(api_clients + 'interestrate', {
+      const response = await axios.get(api_clients + 'interestrate/', {
       headers: {
         Authorization: `Bearer ${token}`,  // ✅ Include JWT token in the request
       },
