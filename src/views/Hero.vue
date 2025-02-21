@@ -31,7 +31,7 @@
       <v-col cols="5" md="2">
         <v-card class="d-flex flex-column align-center pa-3 card-style1">
           <v-icon large color="primary">mdi-cash-multiple</v-icon>
-          <v-card-title>Total Sumă Creditată</v-card-title>
+          <v-card-title>Total Sumă Aprobată</v-card-title>
           <v-card-text>{{ formatNumber(totalCreditSum) }} RON</v-card-text>
         </v-card>
       </v-col>
@@ -93,68 +93,27 @@
 
 
   <v-row>
-  <v-col cols="2" md="4">
-    <v-row>
-      <v-col cols="2" md="6">
-        <v-card class="d-flex align-center pa-3 card-style4">
-          <v-icon size="48" class="me-4" color="blue" icon="mdi-account">
-          </v-icon>
-          
-          <!-- Detalii utilizator -->
-          <div class="account-card">
-            <div class="text-caption2">Nume Client</div>
-            <div class="text-caption2">De contactat: 2 zile</div>
-            <div class="text-caption2">Etapa credit: pre-aprobare</div>
-            <div class="text-caption2">Fisa Client</div>
-          </div>
-        </v-card>
-      </v-col>
-      <v-col cols="2" md="6">
-        <v-card class="d-flex align-center pa-3 card-style4">
-          <v-icon size="48" class="me-4" color="blue" icon="mdi-account">
-          </v-icon>
-          
-          <!-- Detalii utilizator -->
-          <div class="account-card">
-            <div class="text-caption2">Nume Client</div>
-            <div class="text-caption2">De contactat: 2 zile</div>
-            <div class="text-caption2">Etapa credit: pre-aprobare</div>
-            <div class="text-caption2">Fisa Client</div>
-          </div>
-        </v-card>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="2" md="6">
-        <v-card class="d-flex align-center pa-3 card-style4">
-          <v-icon size="48" class="me-4" color="blue" icon="mdi-account">
-          </v-icon>
-          
-          <!-- Detalii utilizator -->
-          <div class="account-card">
-            <div class="text-caption2">Nume Client</div>
-            <div class="text-caption2">De contactat: 2 zile</div>
-            <div class="text-caption2">Etapa credit: pre-aprobare</div>
-            <div class="text-caption2">Fisa Client</div>
-          </div>
-        </v-card>
-      </v-col>
-      <v-col cols="2" md="6">
-        <v-card class="d-flex align-center pa-3 card-style4">
-          <v-icon size="48" class="me-4" color="blue" icon="mdi-account">
-          </v-icon>
-          
-          <!-- Detalii utilizator -->
-          <div class="account-card">
-            <div class="text-caption2">Nume Client</div>
-            <div class="text-caption2">De contactat: 2 zile</div>
-            <div class="text-caption2">Etapa credit: pre-aprobare</div>
-            <div class="text-caption2">Fisa Client</div>
-          </div>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-col>
+    <v-col cols="2" md="4">
+      <v-row>
+        <div class="text-caption3 text-white">Sărbătoriti:</div>
+        <v-col cols="2" md="12">
+          <v-row>
+            <v-col v-for="(client, index) in displayedClients" :key="index" cols="2" md="6">
+              <v-card class="d-flex align-center pa-3 card-style4">
+                <v-icon size="48" class="me-4" color="blue" icon="mdi-account"></v-icon>
+                <!-- Detalii utilizator -->
+                <div class="account-card">
+                  <div class="text-caption2">
+                    {{ client.nume }} {{ client.prenume }}
+                  </div>
+                  <div class="text-caption2">Zi nastere: {{ formatBirthday(client.ziNastere) }}</div>
+                </div>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-col>
+      </v-row>
+    </v-col>
   <v-col cols="2" md="8">
     <v-row>
       <v-col cols="2" md="6">
@@ -173,8 +132,6 @@
   </v-col>
 </v-row>
 
-
-
   </v-container>
 </template>
 
@@ -185,6 +142,8 @@ import BarChart from "@/layouts/components/BarChart.vue";
 import PieChart from "@/layouts/components/PieChart.vue";
 import BarCrediteDiferite from "@/layouts/components/BarCrediteDiferite.vue";
 import axios from "axios";
+import dayjs from "dayjs"; // Pentru lucrul cu date
+
 
 const api_clients = import.meta.env.VITE_BACKEND_HOST;
 
@@ -193,6 +152,8 @@ const applicationsInProgress = ref(0);
 const completedApplications = ref(0);
 const totalCreditSum = ref(0);
 const minimumInterestRate = ref(null);
+const clients = ref([]); // ✅ Definim corect lista de clienți
+
 
 // User profile data
 const userProfile = ref({
@@ -276,6 +237,66 @@ const fetchClientProfile = async () => {
 };
 
 
+const fetchClients = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(`${api_clients}customers/`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    clients.value = response.data.map(client => ({
+      nume: client.nume,
+      prenume: client.prenume,
+      ziNastere: client.zi_nastere, // Format: YYYY-MM-DD
+      etapaCreditare: client.etapa_creditare,
+    }));
+
+  } catch (error) {
+    console.error("❌ Eroare la încărcarea clienților:", error);
+  }
+};
+
+
+// 🔹 Filtrare aniversări (doar clienții cu ziua de naștere azi)
+const birthdayClients = computed(() => {
+  const today = dayjs().format("MM-DD"); // Formatăm ziua de naștere ca MM-DD
+
+  return clients.value.filter(client =>
+    client.ziNastere && dayjs(client.ziNastere).format("MM-DD") === today
+  );
+});
+
+const displayedClients = computed(() => {
+  return birthdayClients.value; // Show all clients with a birthday today
+});
+
+
+// 🔹 Calculează câte zile mai sunt până la ziua de naștere
+const getDaysUntilBirthday = (date) => {
+  if (!date) return "N/A";
+  
+  const today = dayjs();
+  const birthday = dayjs(date).year(today.year());
+
+  if (birthday.isBefore(today)) {
+    return birthday.add(1, "year").diff(today, "day");
+  }
+  
+  return birthday.diff(today, "day");
+};
+
+// 🔹 Deschide fisa clientului
+const openClientDetails = (client) => {
+  console.log("Deschidem fișa clientului:", client);
+};
+
+const formatBirthday = (date) => {
+  if (!date) return "N/A";  
+  return dayjs(date).format("DD MMMM"); // Example: "05 Februarie"
+};
+
+
+
   // Fetch data from the API
   const fetchBankData = async () => {
     try {
@@ -302,6 +323,8 @@ onMounted(() => {
   fetchClientStats();
   fetchBankData();
   fetchClientProfile();
+  fetchClients();
+
 });
 </script>
 
@@ -309,7 +332,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 .container {
   background-image: linear-gradient(to top, #09203f 0%, #537895 100%);
-  height: 100vh;
+  height: 100%;
 }
 
 .card-style1 {
@@ -404,9 +427,16 @@ onMounted(() => {
 }
 
 .text-caption2 {
-  font-weight: 300;
+  font-weight: bold;
   font-family: 'Courier New', Courier, monospace;
   font-size: 60% !important;
+}
+
+.text-caption3 {
+  font-weight: 600;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1rem;
+  margin-left: 2vw;
 }
 
 </style> 

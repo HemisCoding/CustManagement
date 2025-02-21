@@ -65,10 +65,13 @@
         <v-text-field v-model="newClient.data_angajarii" label="Data Angajării" type="date"></v-text-field>
         <v-text-field v-model="newClient.functia" label="Funcția"></v-text-field>
 
-        <v-text-field v-model="newClient.tip_credit" label="Tip Credit"></v-text-field>
-        <v-text-field v-model="newClient.valoare_aprobata" label="Valoare Aprobata" type="number"></v-text-field>
-        <v-text-field v-model="newClient.data_acordarii" label="Data Acordării" type="date"></v-text-field>
-        <v-text-field v-model="newClient.sold_credit_card" label="Sold Credit Card" type="number"></v-text-field>
+        <v-btn 
+          color="primary" 
+          @click="openCreditDialog" 
+          class="mb-4"
+        >
+          Adaugă Tipuri de Credit
+        </v-btn>
 
         <v-text-field v-model="newClient.data_inregistrat" label="Data Înregistrării" type="date"></v-text-field>
         <v-select v-model="newClient.etapa_creditare" label="Etapa Creditare"
@@ -88,6 +91,102 @@
     </v-card-actions>
   </v-card>
 </v-dialog>
+<v-dialog v-model="creditDialog" persistent max-width="900px">
+  <v-card class="pa-3 custom-dialog">
+    <v-card-title class="headline grey lighten-2 pa-3 text-white">
+      Adaugă Tipuri de Credit
+    </v-card-title>
+    <v-divider class="my-3 devider-page"></v-divider>
+
+    <v-card-text class="text-white">
+      <v-data-table
+  :items="creditList"
+  class="elevation-1 text-white"
+  hide-default-footer
+>
+  <!-- Hardcodează Headerurile -->
+  <template #column.header>
+    <tr>
+      <th>Tip Credit</th>
+      <th>Valoare (RON)</th>
+      <th>Data Acordare</th>
+      <th>Rata (%)</th>
+      <th>Acțiuni</th>
+    </tr>
+  </template>
+
+  <!-- Template pentru Randuri -->
+  <template #item="{ item, index }">
+    <tr>
+      <td>
+        <v-text-field
+          v-model="item.tip_credit"
+          placeholder="Tip Credit"
+          dense
+          hide-details
+          solo-inverted
+          style="width: 120%;"
+
+        ></v-text-field>
+      </td>
+      <td>
+        <v-text-field
+          v-model="item.valoare"
+          type="number"
+          placeholder="Valoare (RON)"
+          dense
+          hide-details
+          solo-inverted
+          style="width: 85%;"
+
+        ></v-text-field>
+      </td>
+      <td>
+        <v-text-field
+          v-model="item.data_acordare"
+          type="date"
+          placeholder="Data Acordare"
+          dense
+          hide-details
+          solo-inverted
+        ></v-text-field>
+      </td>
+      <td>
+        <v-text-field
+          v-model="item.rata"
+          type="number"
+          placeholder="Rata"
+          dense
+          hide-details
+          solo-inverted
+        ></v-text-field>
+      </td>
+      <td>
+        <v-btn icon color="red" @click="removeCreditRow(index)">
+          <v-icon>mdi-delete</v-icon>
+        </v-btn>
+      </td>
+    </tr>
+  </template>
+</v-data-table>
+
+<v-btn color="primary" class="mt-4" @click="addCreditRow">
+  Adaugă Rând
+</v-btn>
+
+    </v-card-text>
+
+    <v-divider class="my-3 devider-page"></v-divider>
+
+    <v-card-actions>
+      <v-btn color="red" text @click="creditDialog = false">Anulează</v-btn>
+      <v-spacer></v-spacer>
+      <v-btn color="green" @click="saveCreditDetails">Salvează</v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
+
+
 
 <!-- Dialog pentru completarea partenerului -->
 <v-dialog v-model="partnerDialog" persistent max-width="600px">
@@ -206,6 +305,43 @@
           </v-col>
         </v-row>
 
+        <template v-if="card.details.credit_details && card.details.credit_details.length">
+          <v-divider class="my-4 devider-page"></v-divider>
+          <v-col cols="12">
+            <h3 class="text-h6 font-weight-bold text-white">Tipuri de Credit</h3>
+          </v-col>
+          <v-row>
+            <v-col cols="12">
+              <v-data-table
+                :items="card.details.credit_details"
+                class="elevation-1 text-white"
+                
+                hide-default-footer
+              >
+                <!-- Hardcodează Headerurile -->
+                <template #column.header>
+                  <tr>
+                    <th>Tip Credit</th>
+                    <th>Valoare (RON)</th>
+                    <th>Data Acordare</th>
+                    <th>Rata (%)</th>
+                  </tr>
+                </template>
+
+                <!-- Template pentru Randuri -->
+                <template #item="{ item }">
+                  <tr>
+                    <td>{{ item.tip_credit }}</td>
+                    <td>{{ item.valoare }}</td>
+                    <td>{{ item.data_acordare }}</td>
+                    <td>{{ item.rata }}</td>
+                  </tr>
+                </template>
+              </v-data-table>
+            </v-col>
+          </v-row>
+        </template>
+
         <!-- 🔹 SECTIUNEA PENTRU PARTENER - Apare doar dacă există un partener -->
         <template v-if="card.details.partener">
           <v-divider class="my-4 devider-page"></v-divider>
@@ -290,6 +426,15 @@
   const addClientDialog = ref(false);
   const partnerDialog = ref(false);
   const valid = ref(false);
+  const creditDialog = ref(false);  // Dialog visibility
+  const creditList = ref([]);       // List of credits
+
+  const creditHeaders = [
+  { text: "Tip Credit", value: "tip_credit" },
+  { text: "Valoare (RON)", value: "valoare" },
+  { text: "Data Acordare", value: "data_acordare" },
+  { text: "Rata (%)", value: "rata" }
+];
 
   const newClient = reactive({
   nume: "", prenume: "", cnp: null, varsta: null, zi_nastere: "",
@@ -318,7 +463,30 @@
     }
   };
 
-  
+  // Open the dialog
+const openCreditDialog = () => {
+  creditDialog.value = true;
+};
+
+// Add a new row to the table
+const addCreditRow = () => {
+  creditList.value.push({
+    tip_credit: "",
+    valoare: "",
+    data_acordare: "",
+    rata: ""
+  });
+};
+// Remove a row from the table
+const removeCreditRow = (index) => {
+  creditList.value.splice(index, 1);
+};
+
+// Save the credit details and close the dialog
+const saveCreditDetails = () => {
+  newClient.tip_credit = JSON.stringify(creditList.value);
+  creditDialog.value = false;
+};
 
   const openAddClientDialog = () => { 
   addClientDialog.value = true; 
@@ -366,14 +534,18 @@ const submitNewClient = async () => {
         salariu_net: newClient.salariu_net,
         data_angajarii: newClient.data_angajarii ? new Date(newClient.data_angajarii).toISOString() : null,
         functia: newClient.functia,
-        tip_credit: newClient.tip_credit,
-        valoare_aprobata: newClient.valoare_aprobata,
-        data_acordarii: newClient.data_acordarii ? new Date(newClient.data_acordarii).toISOString() : null,
-        sold_credit_card: newClient.sold_credit_card,
         data_inregistrat: newClient.data_inregistrat ? new Date(newClient.data_inregistrat).toISOString() : null,
         etapa_creditare: newClient.etapa_creditare,
         notar: newClient.notar,
         data_semnare: newClient.data_semnare ? new Date(newClient.data_semnare).toISOString() : null,
+        // Adaugă detaliile creditelor în payload
+        credit_details: creditList.value.map(detail => ({
+          tip_credit: detail.tip_credit,
+          valoare: detail.valoare,
+          data_acordare: detail.data_acordare,
+          rata: detail.rata,
+        }))
+
       };
 
       // Adaugă partener doar dacă este necesar
@@ -543,15 +715,10 @@ const getPhaseColor = (etapaCreditare) => {
         salariuNet: customer.salariu_net || "N/A",
         dataAngajarii: customer.data_angajarii || "N/A",
         functia: customer.functia || "N/A",
-        tipCredit: customer.tip_credit || "N/A",
-        valoareAprobata: customer.valoare_aprobata || "N/A",
-        dataAcordarii: customer.data_acordarii || "N/A",
-        soldCreditCard: customer.sold_credit_card || "N/A",
         dataInregistrat: customer.data_inregistrat || "N/A",
         etapaCreditare: customer.etapa_creditare || "N/A",
         notar: customer.notar || "N/A",
         dataSemnare: customer.data_semnare || "N/A",
-
         // Partener (dacă există)
         partener: customer.partener ? {
           nume: customer.partener.nume || "N/A",
@@ -563,7 +730,16 @@ const getPhaseColor = (etapaCreditare) => {
           studiiFinalizate: customer.partener.studii_finalizate || "N/A",
           salariuNet: customer.partener.salariu_net || "N/A",
           contSalariuBanca: customer.partener.cont_salariu_banca || "N/A",
-        } : null
+        } : null,
+                // 🔥 Integrarea creditelor
+        credit_details: customer.credit_details 
+          ? customer.credit_details.map(credit => ({
+              tip_credit: credit.tip_credit || "N/A",
+              valoare: credit.valoare || "N/A",
+              data_acordare: credit.data_acordare || "N/A",
+              rata: credit.rata || "N/A"
+            }))
+          : []
       };
 
       return {
@@ -648,17 +824,6 @@ const getClientDocs = () => {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
-// .phase-progress-bar {
-//   text-align: center;
-//   margin-top: 8px;
-// }
-
-// .phase-label {
-//   margin-top: 4px;
-//   font-size: 14px;
-//   font-weight: 500;
-// }
-
 .phase-progress-bar {
   position: relative;
   width: 100%;
@@ -680,5 +845,38 @@ const getClientDocs = () => {
   font-weight: bold;
   text-align: center;
 }
+
+.v-data-table {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.v-data-table-header {
+  background: transparent !important;
+  color: white !important;
+}
+
+.v-data-table tbody tr {
+  background: transparent !important;
+}
+
+.v-data-table tbody tr td {
+  color: white !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.v-data-table-header th {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.v-data-table-header th {
+  background: transparent !important;
+  color: white !important;
+  font-weight: bold !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+
+
   </style>
 
