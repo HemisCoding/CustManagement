@@ -773,7 +773,7 @@ const getClientDocs = () => {
   <style lang="scss" scoped>
   .container {
     background-image: linear-gradient(to top, #09203f 0%, #537895 100%);
-    height: 100%;
+    min-height: 100vh;
   }
   
   .card-style1 {
