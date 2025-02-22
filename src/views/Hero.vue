@@ -7,32 +7,32 @@
       <v-col cols="5" md="2">
         <v-card class="d-flex flex-column align-center pa-3 card-style1">
           <v-icon large color="primary">mdi-account-group</v-icon>
-          <v-card-title>Total Clienti</v-card-title>
-          <v-card-text>120</v-card-text>
+          <v-card-title>Total Clienți</v-card-title>
+          <v-card-text>{{ totalClients }}</v-card-text>
         </v-card>
       </v-col>
 
       <v-col cols="5" md="2">
         <v-card class="d-flex flex-column align-center pa-3 card-style1">
           <v-icon large color="primary">mdi-progress-check</v-icon>
-          <v-card-title>Aplicatii in Progres</v-card-title>
-          <v-card-text>15</v-card-text>
+          <v-card-title>Aplicații în Progres</v-card-title>
+          <v-card-text>{{ applicationsInProgress }}</v-card-text>
         </v-card>
       </v-col>
 
       <v-col cols="5" md="2">
         <v-card class="d-flex flex-column align-center pa-3 card-style1">
           <v-icon large color="primary">mdi-check-bold</v-icon>
-          <v-card-title>Aplicatii Finalizate</v-card-title>
-          <v-card-text>400</v-card-text>
+          <v-card-title>Aplicații Finalizate</v-card-title>
+          <v-card-text>{{ completedApplications }}</v-card-text>
         </v-card>
       </v-col>
 
       <v-col cols="5" md="2">
         <v-card class="d-flex flex-column align-center pa-3 card-style1">
           <v-icon large color="primary">mdi-cash-multiple</v-icon>
-          <v-card-title>Total Suma Creditata</v-card-title>
-          <v-card-text>$1.2M</v-card-text>
+          <v-card-title>Total Sumă Aprobată</v-card-title>
+          <v-card-text>{{ formatNumber(totalCreditSum) }} RON</v-card-text>
         </v-card>
       </v-col>
 
@@ -46,8 +46,8 @@
       <v-col cols="5" md="2">
         <v-card class="d-flex flex-column align-center pa-3 card-style1">
           <v-icon large color="primary">mdi-offer</v-icon>
-          <v-card-title>Dobanda minima</v-card-title>
-          <v-card-text>4,9%</v-card-text>
+          <v-card-title>Dobândă minimă</v-card-title>
+          <v-card-text>{{ minimumInterestRate ? minimumInterestRate.toFixed(2) : '-' }} %</v-card-text>
         </v-card>
       </v-col>
     </v-row>
@@ -61,12 +61,12 @@
           
           <!-- Detalii utilizator -->
           <div class="account-card">
-            <div class="font-weight-medium">Nume Utilizator</div>
-            <div class="text-caption">Rol: Manager Clienti</div>
+            <div class="font-weight-medium">{{ userProfile.name || 'Nume Utilizator' }}</div>
+            <div class="text-caption">Rol: {{ userProfile.role || 'Manager Clienti' }}</div>
             <div class="text-caption">Status: Activ</div>
-            <div class="text-caption">Nr. Clienti: 120</div>
-            <div class="text-caption">Clienti in progres: 15</div>
-            <div class="text-caption">Clienti inchisi 28 zile: 10</div>
+            <div class="text-caption">Nr. Clienți: {{ userProfile.totalClients || 0 }}</div>
+            <div class="text-caption">Clienti în progres: {{ userProfile.clientsInProgress || 0 }}</div>
+            <div class="text-caption">Clienti închisi 28 zile: {{ userProfile.clientsClosed || 0 }}</div>
 
             <!-- Progress bar -->
             <v-progress-linear
@@ -93,68 +93,27 @@
 
 
   <v-row>
-  <v-col cols="2" md="4">
-    <v-row>
-      <v-col cols="2" md="6">
-        <v-card class="d-flex align-center pa-3 card-style4">
-          <v-icon size="48" class="me-4" color="blue" icon="mdi-account">
-          </v-icon>
-          
-          <!-- Detalii utilizator -->
-          <div class="account-card">
-            <div class="text-caption2">Nume Client</div>
-            <div class="text-caption2">De contactat: 2 zile</div>
-            <div class="text-caption2">Etapa credit: pre-aprobare</div>
-            <div class="text-caption2">Fisa Client</div>
-          </div>
-        </v-card>
-      </v-col>
-      <v-col cols="2" md="6">
-        <v-card class="d-flex align-center pa-3 card-style4">
-          <v-icon size="48" class="me-4" color="blue" icon="mdi-account">
-          </v-icon>
-          
-          <!-- Detalii utilizator -->
-          <div class="account-card">
-            <div class="text-caption2">Nume Client</div>
-            <div class="text-caption2">De contactat: 2 zile</div>
-            <div class="text-caption2">Etapa credit: pre-aprobare</div>
-            <div class="text-caption2">Fisa Client</div>
-          </div>
-        </v-card>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="2" md="6">
-        <v-card class="d-flex align-center pa-3 card-style4">
-          <v-icon size="48" class="me-4" color="blue" icon="mdi-account">
-          </v-icon>
-          
-          <!-- Detalii utilizator -->
-          <div class="account-card">
-            <div class="text-caption2">Nume Client</div>
-            <div class="text-caption2">De contactat: 2 zile</div>
-            <div class="text-caption2">Etapa credit: pre-aprobare</div>
-            <div class="text-caption2">Fisa Client</div>
-          </div>
-        </v-card>
-      </v-col>
-      <v-col cols="2" md="6">
-        <v-card class="d-flex align-center pa-3 card-style4">
-          <v-icon size="48" class="me-4" color="blue" icon="mdi-account">
-          </v-icon>
-          
-          <!-- Detalii utilizator -->
-          <div class="account-card">
-            <div class="text-caption2">Nume Client</div>
-            <div class="text-caption2">De contactat: 2 zile</div>
-            <div class="text-caption2">Etapa credit: pre-aprobare</div>
-            <div class="text-caption2">Fisa Client</div>
-          </div>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-col>
+    <v-col cols="2" md="4">
+      <v-row>
+        <div class="text-caption3 text-white">Sărbătoriti:</div>
+        <v-col cols="2" md="12">
+          <v-row>
+            <v-col v-for="(client, index) in displayedClients" :key="index" cols="2" md="6">
+              <v-card class="d-flex align-center pa-3 card-style4">
+                <v-icon size="48" class="me-4" color="blue" icon="mdi-account"></v-icon>
+                <!-- Detalii utilizator -->
+                <div class="account-card">
+                  <div class="text-caption2">
+                    {{ client.nume }} {{ client.prenume }}
+                  </div>
+                  <div class="text-caption2">Zi nastere: {{ formatBirthday(client.ziNastere) }}</div>
+                </div>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-col>
+      </v-row>
+    </v-col>
   <v-col cols="2" md="8">
     <v-row>
       <v-col cols="2" md="6">
@@ -173,8 +132,6 @@
   </v-col>
 </v-row>
 
-
-
   </v-container>
 </template>
 
@@ -184,14 +141,198 @@ import LineChart from "@/layouts/components/LineChart.vue";
 import BarChart from "@/layouts/components/BarChart.vue";
 import PieChart from "@/layouts/components/PieChart.vue";
 import BarCrediteDiferite from "@/layouts/components/BarCrediteDiferite.vue";
+import axios from "axios";
+import dayjs from "dayjs"; // Pentru lucrul cu date
 
+
+const api_clients = import.meta.env.VITE_BACKEND_HOST;
+
+const totalClients = ref(0);
+const applicationsInProgress = ref(0);
+const completedApplications = ref(0);
+const totalCreditSum = ref(0);
+const minimumInterestRate = ref(null);
+const clients = ref([]); // ✅ Definim corect lista de clienți
+
+
+// User profile data
+const userProfile = ref({
+  name: "",
+  role: "",
+  totalClients: 0,
+  clientsInProgress: 0,
+  clientsClosed: 0,
+  progress: 0,
+});
+
+const formatNumber = (value) => {
+  return new Intl.NumberFormat('ro-RO', { maximumFractionDigits: 0 }).format(value);
+};
+
+
+const fetchClientStats = async () => {
+  try {
+    // const response = await axios.get(api_clients + 'customers/total_clients/');
+
+    const token = localStorage.getItem("token");
+    const response = await axios.get(api_clients + 'customers/total_clients/', {
+      headers: {
+        Authorization: `Bearer ${token}`,  // ✅ Include JWT token in the request
+      },
+    });
+    totalClients.value = response.data.total_clients;
+    applicationsInProgress.value = response.data.applications_in_progress;
+    completedApplications.value = response.data.completed_applications;
+    totalCreditSum.value = response.data.total_credit_sum;
+  } catch (error) {
+    console.error("Error fetching client statistics:", error);
+  }
+};
+
+// Fetch User Profile
+const fetchClientProfile = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const userEmail = localStorage.getItem("email");
+
+    if (!token || !userEmail) {
+      console.error("No authentication token or email found.");
+      return;
+    }
+
+    console.log("Fetching user profile from:", `${api_clients}users/`);
+    console.log("Looking for email:", userEmail);
+
+    const response = await axios.get(`${api_clients}users/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("User profile response:", response.data);
+
+    // ✅ Convert both emails to lowercase to fix case-sensitivity issues
+    const user = response.data.find(u => u.email.toLowerCase() === userEmail.toLowerCase());
+
+    if (user) {
+      userProfile.value = {
+        name: user.first_name || "Nume Utilizator",
+        email: user.email,
+        phone: user.phone || "N/A",
+        role: user.role || "Manager Clienti",
+        totalClients: user.total_clients || 0,
+        clientsInProgress: user.clients_in_progress || 0,
+        clientsClosed: user.clients_closed || 0,
+        progress: user.progress || 0,
+      };
+      console.log("User details loaded:", userProfile.value);
+    } else {
+      console.error("Logged-in user not found in user list.");
+      console.log("API returned these users:", response.data);
+    }
+
+  } catch (error) {
+    console.error("Error fetching user profile:", error.response ? error.response.data : error.message);
+  }
+};
+
+
+const fetchClients = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(`${api_clients}customers/`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    clients.value = response.data.map(client => ({
+      nume: client.nume,
+      prenume: client.prenume,
+      ziNastere: client.zi_nastere, // Format: YYYY-MM-DD
+      etapaCreditare: client.etapa_creditare,
+    }));
+
+  } catch (error) {
+    console.error("❌ Eroare la încărcarea clienților:", error);
+  }
+};
+
+
+// 🔹 Filtrare aniversări (doar clienții cu ziua de naștere azi)
+const birthdayClients = computed(() => {
+  const today = dayjs().format("MM-DD"); // Formatăm ziua de naștere ca MM-DD
+
+  return clients.value.filter(client =>
+    client.ziNastere && dayjs(client.ziNastere).format("MM-DD") === today
+  );
+});
+
+const displayedClients = computed(() => {
+  return birthdayClients.value; // Show all clients with a birthday today
+});
+
+
+// 🔹 Calculează câte zile mai sunt până la ziua de naștere
+const getDaysUntilBirthday = (date) => {
+  if (!date) return "N/A";
+  
+  const today = dayjs();
+  const birthday = dayjs(date).year(today.year());
+
+  if (birthday.isBefore(today)) {
+    return birthday.add(1, "year").diff(today, "day");
+  }
+  
+  return birthday.diff(today, "day");
+};
+
+// 🔹 Deschide fisa clientului
+const openClientDetails = (client) => {
+  console.log("Deschidem fișa clientului:", client);
+};
+
+const formatBirthday = (date) => {
+  if (!date) return "N/A";  
+  return dayjs(date).format("DD MMMM"); // Example: "05 Februarie"
+};
+
+
+
+  // Fetch data from the API
+  const fetchBankData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(api_clients + 'interestrate/', {
+      headers: {
+        Authorization: `Bearer ${token}`,  // ✅ Include JWT token in the request
+      },
+    });
+      // Update chart data with sorted API response
+      const banks = response.data;
+      console.log(banks)
+
+        // Calculate the minimum interest rate
+      minimumInterestRate.value = Math.min(...banks.map((bank) => bank.interest_rate));
+  
+    } catch (error) {
+      console.error('Error fetching bank data:', error);
+    }
+  };
+  
+
+onMounted(() => {
+  fetchClientStats();
+  fetchBankData();
+  fetchClientProfile();
+  fetchClients();
+
+});
 </script>
 
 
 <style lang="scss" scoped>
 .container {
   background-image: linear-gradient(to top, #09203f 0%, #537895 100%);
-  height: 100%;
+  min-height: 100vh;
 }
 
 .card-style1 {
@@ -286,9 +427,16 @@ import BarCrediteDiferite from "@/layouts/components/BarCrediteDiferite.vue";
 }
 
 .text-caption2 {
-  font-weight: 300;
+  font-weight: bold;
   font-family: 'Courier New', Courier, monospace;
   font-size: 60% !important;
+}
+
+.text-caption3 {
+  font-weight: 600;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1rem;
+  margin-left: 2vw;
 }
 
 </style> 

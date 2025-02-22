@@ -9,6 +9,9 @@
   import { ref } from 'vue';
   import { Chart, registerables } from 'chart.js';
   Chart.register(...registerables);
+
+  const api_url = import.meta.env.VITE_BACKEND_HOST;
+
   
   const chartData = ref({
     labels: ['Banca A', 'Banca B', 'Banca C', 'Banca D', 'Banca E'],
@@ -30,7 +33,22 @@
       }
     ]
   });
-  
+
+//   const fetchCreditStatus = async () => {
+//     try {
+//     const token = localStorage.getItem('token');
+//     const response = await axios.get(api_url + `customers/`, {
+//       headers: { Authorization: `Bearer ${token}` },
+//     });
+//     const customers = response.data;
+//     console.log('clienti pentru credit status', customers)
+//   }
+
+//   catch (error) {
+//     console.error('Eroare la citirea fetchCreditStatus', error)
+//   }
+// },
+
   const chartOptions = ref({
     responsive: true,
     plugins: {

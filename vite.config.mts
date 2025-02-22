@@ -4,7 +4,11 @@ import Components from 'unplugin-vue-components/vite'
 import Fonts from 'unplugin-fonts/vite'
 import Layouts from 'vite-plugin-vue-layouts'
 import Vue from '@vitejs/plugin-vue'
-import VueRouter from 'unplugin-vue-router/vite'
+// import VueRouter from 'unplugin-vue-router/vite'
+import Pages from 'vite-plugin-pages';
+
+import VueRouter from 'unplugin-vue-router/vite'  // ✅ Correct Vue Router import
+
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 
 // Utilities
@@ -15,8 +19,13 @@ import { fileURLToPath, URL } from 'node:url'
 export default defineConfig({
   plugins: [
     VueRouter({
-      dts: 'src/typed-router.d.ts',
+      dts: 'src/typed-router.d.ts',  // ✅ Auto-generate routes
     }),
+    // Pages(), // 🔥 Adaugă vite-plugin-pages pentru generarea automată a rutelor
+    Pages({
+      extensions: ['vue'], // ✅ Se asigură că folosește fișiere `.vue`
+    }),
+
     Layouts(),
     AutoImport({
       imports: [
