@@ -73,7 +73,7 @@
           Adaugă Tipuri de Credit
         </v-btn>
 
-        <v-text-field v-model="newClient.data_inregistrat" label="Data Înregistrării" type="date"></v-text-field>
+        <!-- <v-text-field v-model="newClient.data_inregistrat" label="Data Înregistrării" type="date"></v-text-field> -->
         <v-select v-model="newClient.etapa_creditare" :items="etapaCreditareOptions" label="Etapa Creditare" class="text-white"></v-select>
 
         <v-text-field v-model="newClient.notar" label="Notar"></v-text-field>
@@ -281,7 +281,6 @@
           </v-card-text>
         </v-card>
 
-        <!-- Dialog -->
       <!-- Dialog pentru detaliile clientului -->
 <v-dialog v-model="card.dialog" persistent max-width="800px">
   <v-card class="pa-3 custom-dialog">
@@ -298,6 +297,16 @@
           <v-col cols="6" v-for="([key, value], index) in Object.entries(card.details)" :key="index">
             <template v-if="key === 'etapaCreditare'">
             <v-select v-model="card.details.etapaCreditare" :items="etapaCreditareOptions" label="Etapa Creditare" class="text-white"></v-select>
+            </template>
+            <template v-else-if="key === 'ziNastere' || key === 'dataAngajarii' || key === 'dataSemnare'">
+              <v-text-field
+                v-model="card.details[key]"
+                :label="key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())"
+                type="date"
+                variant="filled"
+                outlined
+                class="text-left text-white"
+              ></v-text-field>
             </template>
             <!-- Altfel afișăm v-text-field normal -->
             <template v-else>
@@ -533,7 +542,7 @@ const submitNewClient = async () => {
         prenume: newClient.prenume,
         cnp: newClient.cnp,
         varsta: newClient.varsta,
-        zi_nastere: newClient.zi_nastere ? new Date(newClient.zi_nastere).toISOString() : null,
+        zi_nastere: newClient.zi_nastere ? newClient.zi_nastere : null,
         stare_civila: newClient.stare_civila,
         studii_finalizate: newClient.studii_finalizate,
         stare_domiciliu: newClient.stare_domiciliu,
@@ -542,12 +551,12 @@ const submitNewClient = async () => {
         telefon: newClient.telefon,
         angajator: newClient.angajator,
         salariu_net: newClient.salariu_net,
-        data_angajarii: newClient.data_angajarii ? new Date(newClient.data_angajarii).toISOString() : null,
+        data_angajarii: newClient.data_angajarii ? newClient.data_angajarii : null,
         functia: newClient.functia,
-        data_inregistrat: newClient.data_inregistrat ? new Date(newClient.data_inregistrat).toISOString() : null,
+        // data_inregistrat: newClient.data_inregistrat ? newClient.data_inregistrat : null,
         etapa_creditare: newClient.etapa_creditare,
         notar: newClient.notar,
-        data_semnare: newClient.data_semnare ? new Date(newClient.data_semnare).toISOString() : null,
+        data_semnare: newClient.data_semnare ? newClient.data_semnare : null,
         // Adaugă detaliile creditelor în payload
         credit_details: creditList.value.map(detail => ({
           tip_credit: detail.tip_credit,
@@ -611,8 +620,9 @@ const submitNewClient = async () => {
           cleaned[key] = cleaned[key] ? Number(cleaned[key]) : null; // Convertim în număr dacă e cazul
         }
         if (key.includes("data") && cleaned[key]) {
-          cleaned[key] = new Date(cleaned[key]).toISOString().split("T")[0]; // Convertim la YYYY-MM-DD
-        }
+            // Directly use the value without converting to ISO string
+            cleaned[key] = cleaned[key]; // Already in YYYY-MM-DD format from <input type="date">
+            }
       }
       return cleaned;
     };
@@ -729,7 +739,7 @@ const getPhaseColor = (etapaCreditare) => {
         salariuNet: customer.salariu_net || "N/A",
         dataAngajarii: customer.data_angajarii || "N/A",
         functia: customer.functia || "N/A",
-        dataInregistrat: customer.data_inregistrat || "N/A",
+        // dataInregistrat: customer.data_inregistrat || "N/A",
         etapaCreditare: customer.etapa_creditare || "N/A",
         notar: customer.notar || "N/A",
         dataSemnare: customer.data_semnare || "N/A",
