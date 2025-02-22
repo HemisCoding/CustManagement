@@ -8,13 +8,13 @@
           label="Caută"
           solo-inverted
           hide-details
-          
+          class="text-white"
         ></v-text-field>
       </v-col>
       <v-col cols="12" md="6"></v-col>
       <v-col cols="12" md="2">
         <v-select
-          color="white"
+          class="text-white"
           v-model="sortOrder"
           :items="sortOptions"
           label="Sortează după"
