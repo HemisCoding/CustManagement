@@ -78,6 +78,9 @@
 
         <v-text-field v-model="newClient.notar" label="Notar"></v-text-field>
         <v-text-field v-model="newClient.data_semnare" label="Data Semnare" type="date"></v-text-field>
+        <v-text-field v-model="newClient.inscris_de" label="Inscris De"></v-text-field>
+        <v-text-field v-model="newClient.manageriat_de" label="Manageriat De"></v-text-field>
+
       </v-form>
     </v-card-text>
 
@@ -462,7 +465,7 @@ const etapaCreditareOptions = ['Initializare Aplicatie', 'Verificare Documente',
   salariu_net: null, data_angajarii: "", functia: "", tip_credit: "",
   valoare_aprobata: null, data_acordarii: "", sold_credit_card: null,
   data_inregistrat: "", etapa_creditare: "", notar: "", data_semnare: "",
-  partener: null
+  inscris_de: "", manageriat_de: "", partener: null
 });
 
 
@@ -557,6 +560,8 @@ const submitNewClient = async () => {
         etapa_creditare: newClient.etapa_creditare,
         notar: newClient.notar,
         data_semnare: newClient.data_semnare ? newClient.data_semnare : null,
+        inscris_de: newClient.inscris_de,
+        manageriat_de: newClient.manageriat_de,
         // Adaugă detaliile creditelor în payload
         credit_details: creditList.value.map(detail => ({
           tip_credit: detail.tip_credit,
@@ -743,6 +748,8 @@ const getPhaseColor = (etapaCreditare) => {
         etapaCreditare: customer.etapa_creditare || "N/A",
         notar: customer.notar || "N/A",
         dataSemnare: customer.data_semnare || "N/A",
+        inscris_de: customer.inscris_de,
+        manageriat_de: customer.manageriat_de,
         // Partener (dacă există)
         partener: customer.partener ? {
           nume: customer.partener.nume || "N/A",
