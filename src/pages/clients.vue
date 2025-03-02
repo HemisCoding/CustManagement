@@ -719,13 +719,60 @@ const getPhaseColor = (etapaCreditare) => {
   }
 
   const fetchCustomers = async () => {
+  // try {
+  //   const token = localStorage.getItem("token");
+  //   const response = await axios.get(api_url + `customers/`, {
+  //     headers: { Authorization: `Bearer ${token}` },
+  //   });
+
+  //   const customers = response.data;
+
   try {
     const token = localStorage.getItem("token");
-    const response = await axios.get(api_url + `customers/`, {
+    const userEmail = localStorage.getItem("email");
+
+    if (!token || !userEmail) {
+      console.warn("No token or email found.");
+      return;
+    }
+
+    // Fetch the user list to determine the logged-in user's details
+    const userResponse = await axios.get(`${api_url}users/`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    const customers = response.data;
+    // Find the logged-in user
+    const loggedInUser = userResponse.data.find(
+      (u) => u.email.toLowerCase().trim() === userEmail.toLowerCase().trim()
+    );
+
+    if (!loggedInUser) {
+      console.error("❌ Logged-in user not found.");
+      return;
+    }
+
+    console.log("✅ Logged-in user:", loggedInUser);
+
+    // Get the user's role and full name
+    const userRole = loggedInUser.role;
+    const userFullName = `${loggedInUser.first_name} ${loggedInUser.last_name}`.trim();
+
+    // Fetch the customers list
+    const response = await axios.get(`${api_url}customers/`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    let customers = response.data;
+
+    // 🔹 Apply filtering for `standard` users
+    if (userRole === "standard") {
+      customers = customers.filter(
+        (customer) =>
+          customer.manageriat_de &&
+          customer.manageriat_de.toLowerCase().trim() === userFullName.toLowerCase()
+      );
+      console.log(`✅ Filtered customers for ${userFullName}:`, customers);
+    }
     
     const customersData = customers.map((customer) => {
       const details = {

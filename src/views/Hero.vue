@@ -60,17 +60,17 @@
           </v-icon>
           
           <!-- Detalii utilizator -->
+          <!-- User Details -->
           <div class="account-card">
-            <div class="font-weight-medium">{{ userProfile.name || 'Nume Utilizator' }}</div>
-            <div class="text-caption">Rol: {{ userProfile.role || 'Manager Clienti' }}</div>
+            <div class="font-weight-medium">{{ userProfile.name || "Nume Utilizator" }}</div>
+            <div class="text-caption">Email: {{ userProfile.email || "N/A" }}</div>
+            <div class="text-caption">Rol: {{ userProfile.role || "N/A" }}</div>
             <div class="text-caption">Status: Activ</div>
-            <div class="text-caption">Nr. Clienți: {{ userProfile.totalClients || 0 }}</div>
-            <div class="text-caption">Clienti în progres: {{ userProfile.clientsInProgress || 0 }}</div>
-            <div class="text-caption">Clienti închisi 28 zile: {{ userProfile.clientsClosed || 0 }}</div>
-
+            <div class="text-caption">Total Clienți: {{ userProfile.totalClients || 0 }}</div>
+            <div class="text-caption">Clienți în progres: {{ userProfile.clientsInProgress || 0 }}</div>
             <!-- Progress bar -->
             <v-progress-linear
-              value="75"
+              :value="userProfile.progress || 0"
               color="yellow"
               height="10"
               class="mt-2"
@@ -155,9 +155,11 @@ const minimumInterestRate = ref(null);
 const clients = ref([]); // ✅ Definim corect lista de clienți
 
 
-// User profile data
+// ✅ User Profile Data
 const userProfile = ref({
   name: "",
+  email: "",
+  phone: "",
   role: "",
   totalClients: 0,
   clientsInProgress: 0,
@@ -189,7 +191,6 @@ const fetchClientStats = async () => {
   }
 };
 
-// Fetch User Profile
 const fetchClientProfile = async () => {
   try {
     const token = localStorage.getItem("token");
@@ -200,35 +201,31 @@ const fetchClientProfile = async () => {
       return;
     }
 
-    console.log("Fetching user profile from:", `${api_clients}users/`);
-    console.log("Looking for email:", userEmail);
-
     const response = await axios.get(`${api_clients}users/`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     console.log("User profile response:", response.data);
 
-    // ✅ Convert both emails to lowercase to fix case-sensitivity issues
-    const user = response.data.find(u => u.email.toLowerCase() === userEmail.toLowerCase());
+    // 🔹 Convert both emails to lowercase to ensure case-insensitive matching
+    const user = response.data.find((u) => u.email.toLowerCase().trim() === userEmail.toLowerCase().trim());
 
     if (user) {
       userProfile.value = {
-        name: user.first_name || "Nume Utilizator",
+        name: `${user.first_name} ${user.last_name}` || "Nume Utilizator",
         email: user.email,
         phone: user.phone || "N/A",
-        role: user.role || "Manager Clienti",
+        role: user.role || "N/A",
         totalClients: user.total_clients || 0,
         clientsInProgress: user.clients_in_progress || 0,
         clientsClosed: user.clients_closed || 0,
         progress: user.progress || 0,
       };
-      console.log("User details loaded:", userProfile.value);
+      console.log("✅ User details loaded:", userProfile.value);
     } else {
-      console.error("Logged-in user not found in user list.");
-      console.log("API returned these users:", response.data);
+      console.error("❌ Logged-in user not found in user list.");
+      console.log("🔍 Checking for user with email:", userEmail);
+      console.log("API returned these users:", response.data.map(u => u.email));
     }
 
   } catch (error) {

@@ -34,30 +34,74 @@ export default {
   },
   methods: {
     // Funcția pentru a înregistra utilizatorul
+    // async login() {
+    //   try {
+    //     const response = await axios.post(this.api_login, {
+    //       email: this.email,
+    //       password: this.password,
+    //     });
+
+    //     console.log("🔍 Login Response:", response.data); // Debug response
+
+    //     // // ✅ Ensure `email` exists in response before storing
+    //     // if (!response.data.email) {
+    //     //   console.error("❌ Error: Email is missing in the login response.");
+    //     //   alert("Login failed: Email not found in response.");
+    //     //   return;
+    //     // }
+
+
+    //     // ✅ Store JWT token și refresh token
+    //     localStorage.setItem("token", response.data.access);
+    //     localStorage.setItem("role", response.data.role);
+    //     localStorage.setItem("email", response.data.email);
+    //     localStorage.setItem("refresh_token", response.data.refresh); // Salvează refresh token
+
+    //     alert("Login successful!");
+    //     this.loadUser(); // Reîncarcă informațiile utilizatorului după login
+
+    //     // ✅ Force a full page reload
+    //     window.location.href = "/"; 
+
+    //   } catch (error) {
+    //     console.error("Login failed:", error);
+    //     alert("Invalid credentials or API not found!");
+    //   }
+    // },
     async login() {
-      try {
-        const response = await axios.post(this.api_login, {
-          email: this.email,
-          password: this.password,
-        });
+  try {
+    const response = await axios.post(this.api_login, {
+      email: this.email,
+      password: this.password,
+    });
 
-        // ✅ Store JWT token și refresh token
-        localStorage.setItem("token", response.data.access);
-        localStorage.setItem("role", response.data.role);
-        localStorage.setItem("email", response.data.email);
-        localStorage.setItem("refresh_token", response.data.refresh); // Salvează refresh token
+    console.log("🔍 Login Response:", response.data);
 
-        alert("Login successful!");
-        this.loadUser(); // Reîncarcă informațiile utilizatorului după login
+    // ✅ Decode JWT to extract email
+    const tokenPayload = JSON.parse(atob(response.data.access.split(".")[1]));
+    const userEmail = tokenPayload.email; // Extract email from JWT
 
-        // ✅ Force a full page reload
-        window.location.href = "/"; 
+    if (!userEmail) {
+      console.error("❌ Error: Email is missing in the decoded token.");
+      alert("Login failed: Email not found in token.");
+      return;
+    }
 
-      } catch (error) {
-        console.error("Login failed:", error);
-        alert("Invalid credentials or API not found!");
-      }
-    },
+    // ✅ Store JWT token și refresh token
+    localStorage.setItem("token", response.data.access);
+    localStorage.setItem("role", tokenPayload.role); // Extract role from token
+    localStorage.setItem("email", userEmail); // ✅ Use extracted email
+    localStorage.setItem("refresh_token", response.data.refresh);
+
+    alert("Login successful!");
+    window.location.href = "/"; // Reload the page
+
+  } catch (error) {
+    console.error("❌ Login failed:", error);
+    alert("Invalid credentials or API not found!");
+  }
+},
+
 
     // Funcția pentru a încarcă utilizatorul din localStorage
     async loadUser() {

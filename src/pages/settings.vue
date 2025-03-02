@@ -17,7 +17,7 @@
   </v-container>
 
   <!-- Unauthorized Message -->
-  <v-container v-else class="pa-5 container d-flex align-center justify-center">
+  <v-container v-else class="pa-5 container d-flex align-center justify-center" fluid>
     <v-card class="pa-5 card-style1 text-center" outlined>
       <v-card-title>Access Denied</v-card-title>
       <v-card-text>You do not have permission to view this page.</v-card-text>
@@ -28,62 +28,66 @@
 
 <script>
 import axios from "axios";
-import { ref, watchEffect } from "vue";
-import { useRouter } from "vue-router"; // ✅ Use Vue Router for redirection
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 
 export default {
   setup() {
     const userRole = ref(""); // Store user role
     const isAuthorized = ref(false); // Check authorization
     const router = useRouter();
+    const api_clients = import.meta.env.VITE_BACKEND_HOST;
 
     // 🔹 Allowed Roles
     const allowedRoles = ["manager", "developer"];
 
-    // 🔹 Fetch User Role
+    // 🔹 Fetch User Role from `/users/`
     const fetchUserRole = async () => {
       try {
         const token = localStorage.getItem("token");
-        const email = localStorage.getItem("email");
-        if (!token || !email) {
+        const userEmail = localStorage.getItem("email");
+
+        if (!token || !userEmail) {
           console.warn("No token or email found, redirecting...");
           router.push("/");
           return;
         }
 
-        const response = await axios.get("http://127.0.0.1:8000/api/users/me", {
+        console.log("🔍 Fetching user list...");
+        const response = await axios.get(`${api_clients}users/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        console.log('user connected', response);
-        // 🔹 Find current user
-        const user = response.data.find((u) => u.email.toLowerCase() === email.toLowerCase());
+        console.log("✅ User list response:", response.data);
+
+        // 🔹 Find the logged-in user
+        const user = response.data.find((u) => u.email.toLowerCase().trim() === userEmail.toLowerCase().trim());
+
         if (user) {
           userRole.value = user.role;
-          console.log("✅ User role found:", user.role); // Debugging Log
+          console.log("✅ Logged-in user role:", userRole.value);
+
+          // ✅ Check if the user is authorized
+          isAuthorized.value = allowedRoles.includes(userRole.value);
+
+          // 🚨 Redirect unauthorized users
+          if (!isAuthorized.value) {
+            console.warn("❌ Unauthorized access, redirecting...");
+            router.push("/");
+          }
         } else {
-          console.warn("User not found in response, redirecting...");
+          console.error("❌ Logged-in user not found in user list, redirecting...");
           router.push("/");
         }
       } catch (error) {
-        console.error("Error fetching user role:", error);
+        console.error("❌ Error fetching user role:", error);
         router.push("/");
       }
     };
 
-    // 🔹 React when `userRole` updates
-    watchEffect(() => {
-      isAuthorized.value = allowedRoles.includes(userRole.value);
-      console.log("🔹 Authorization Updated:", isAuthorized.value); // Debugging Log
-
-      // Redirect only if the role is set and not allowed
-      if (userRole.value && !isAuthorized.value) {
-        console.warn("Unauthorized access, redirecting...");
-        router.push("/");
-      }
+    onMounted(() => {
+      fetchUserRole();
     });
-
-    fetchUserRole(); // Call function
 
     return {
       isAuthorized,
